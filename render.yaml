@@ -4,20 +4,17 @@ services:
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.13.5
-      - key: SECRET_KEY
-        generateValue: true
-      # Persist DB and file data on mounted disk.
       - key: DATABASE_URL
         value: sqlite:////var/data/secure_cloud.db
+      - key: SECRET_KEY
+        generateValue: true
       - key: UPLOAD_FOLDER
         value: /var/data/uploads
       - key: ENCRYPTED_FOLDER
         value: /var/data/encrypted
-    disks:
+    disk:
       - name: securecloud-data
         mountPath: /var/data
         sizeGB: 2
