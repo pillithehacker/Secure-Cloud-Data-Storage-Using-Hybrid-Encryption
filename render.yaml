@@ -7,14 +7,10 @@ services:
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     envVars:
       - key: DATABASE_URL
-        value: sqlite:////var/data/secure_cloud.db
+        value: sqlite:///secure_cloud.db
       - key: SECRET_KEY
         generateValue: true
       - key: UPLOAD_FOLDER
-        value: /var/data/uploads
+        value: uploads
       - key: ENCRYPTED_FOLDER
-        value: /var/data/encrypted
-    disk:
-      name: securecloud-data
-      mountPath: /var/data
-      sizeGB: 2
+        value: encrypted
