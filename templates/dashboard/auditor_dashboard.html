@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block title %}Auditor Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+  <aside class="dash-sidebar glass-card p-3">
+    <h5 class="neon-text">Auditor Console</h5>
+    <a href="#" class="side-link"><i class="fa fa-eye"></i> Monitoring</a>
+    <a href="{{ url_for('logs') }}" class="side-link"><i class="fa fa-list-check"></i> System Logs</a>
+    <a href="#" class="side-link"><i class="fa fa-file-pdf"></i> Audit Reports</a>
+  </aside>
+  <main>
+    <h2 class="mb-4">Auditor Dashboard</h2>
+    <div class="row g-3 mb-4">
+      <div class="col-md-4"><div class="glass-card p-3 card-glow"><h6>System Logs</h6><h3>{{ logs|length }}</h3></div></div>
+      <div class="col-md-4"><div class="glass-card p-3 card-glow"><h6>Failed Login Attempts</h6><h3>{{ failed_logins }}</h3></div></div>
+      <div class="col-md-4"><div class="glass-card p-3 card-glow"><h6>Encryption Reports</h6><h3>{{ all_files|length }}</h3></div></div>
+    </div>
+    <div class="row g-3 mb-4">
+      <div class="col-lg-8"><div class="glass-card p-3"><canvas id="auditorChart"></canvas></div></div>
+      <div class="col-lg-4">
+        <div class="glass-card p-3 mb-3"><h6>Recent Login Attempts</h6><p class="small mb-0 text-secondary">Monitoring suspicious activity continuously.</p></div>
+        <div class="glass-card p-3"><h6>System Alerts Panel</h6><p class="small mb-0 text-warning">2 medium-risk patterns detected.</p></div>
+      </div>
+    </div>
+    <div class="glass-card p-3">
+      <h5>Security Logs</h5>
+      <table class="table table-dark table-striped datatable">
+        <thead><tr><th>Time</th><th>User ID</th><th>Action</th><th>Status</th></tr></thead>
+        <tbody>{% for l in logs %}<tr><td>{{ l.timestamp.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ l.user_id }}</td><td>{{ l.action }}</td><td>{{ l.status }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

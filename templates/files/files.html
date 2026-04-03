@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+{% block page_class %}files-page{% endblock %}
+{% block title %}Files{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h2 class="mb-0">File Manager</h2>
+  <a href="{{ url_for('upload') }}" class="btn btn-neon" data-bs-toggle="tooltip" title="Upload File"><i class="fa fa-upload"></i> Upload</a>
+</div>
+
+<div class="glass-card files-panel">
+  <div class="files-panel-header d-flex justify-content-between align-items-end gap-3">
+    <div>
+      <div class="text-secondary small mb-1">Encrypted storage with audit-ready workflows</div>
+      <div class="neon-text">Manage uploads, encryption, sharing and downloads</div>
+    </div>
+  </div>
+
+  <table class="table table-dark datatable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Owner</th>
+        <th>Status</th>
+        <th class="hash-col">Hash</th>
+        <th class="actions-col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in files %}
+      {% set shared_count = f.shared_user_ids()|length %}
+      {% if shared_count > 0 %}
+        {% set status_label = "Shared" %}
+        {% set status_class = "status-shared" %}
+      {% else %}
+        {% set status_label = f.encryption_status|capitalize %}
+        {% if f.encryption_status == "raw" %}
+          {% set status_class = "status-raw" %}
+        {% elif f.encryption_status == "encrypted" %}
+          {% set status_class = "status-encrypted" %}
+        {% else %}
+          {% set status_class = "status-decrypted" %}
+        {% endif %}
+      {% endif %}
+      <tr>
+        <td class="file-name">
+          <div class="fw-600">{{ f.original_filename }}</div>
+        </td>
+        <td class="text-muted-soft">{{ f.owner.username }}</td>
+        <td>
+          <span class="status-badge {{ status_class }}">{{ status_label }}</span>
+        </td>
+        <td class="hash-cell">{{ (f.file_hash or '')[:18] }}...</td>
+        <td class="actions-cell">
+          <a class="icon-btn btn-encrypt" href="{{ url_for('encrypt_file', file_id=f.id) }}" data-bs-toggle="tooltip" title="Encrypt File"><i class="fa fa-lock"></i></a>
+          <a class="icon-btn btn-decrypt" href="{{ url_for('decrypt_file', file_id=f.id) }}" data-bs-toggle="tooltip" title="Decrypt File"><i class="fa fa-lock-open"></i></a>
+          <button class="icon-btn btn-view preview-btn" data-name="{{ f.original_filename }}" data-bs-toggle="tooltip" title="View File"><i class="fa fa-eye"></i></button>
+          <a class="icon-btn btn-download" href="{{ url_for('download_file', file_id=f.id) }}" data-bs-toggle="tooltip" title="Download File"><i class="fa fa-download"></i></a>
+          <a class="icon-btn btn-delete delete-link" href="{{ url_for('delete_file', file_id=f.id) }}" data-bs-toggle="tooltip" title="Delete File"><i class="fa fa-trash"></i></a>
+
+          <button class="icon-btn btn-share" data-bs-toggle="modal" data-bs-target="#m{{ f.id }}" title="Share File">
+            <i class="fa fa-share-nodes" data-bs-toggle="tooltip" title="Share File"></i>
+          </button>
+
+          <div class="modal fade" id="m{{ f.id }}">
+            <div class="modal-dialog">
+              <div class="modal-content bg-dark text-white">
+                <div class="modal-body">
+                  <form method="post" action="{{ url_for('share_file', file_id=f.id) }}">
+                    <div class="mb-2">
+                      <label class="form-label">Share with email</label>
+                      <input class="form-control bg-black text-white" name="email" required>
+                    </div>
+                    <button class="btn btn-pink w-100"><i class="fa fa-share-nodes"></i> Share</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="recent-activity p-3 mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">Recent File Activity</h5>
+      <span class="text-secondary small">Latest actions and audit trail</span>
+    </div>
+    <div class="activity-list">
+      {% if recent_activity %}
+        {% for a in recent_activity %}
+          <div class="activity-item">
+            {% if "Uploaded" in a.action %}
+              <span class="activity-dot dot-upload"></span>
+            {% elif "Encrypted" in a.action %}
+              <span class="activity-dot dot-encrypt"></span>
+            {% elif "Shared" in a.action %}
+              <span class="activity-dot dot-share"></span>
+            {% elif "Deleted" in a.action %}
+              <span class="activity-dot dot-delete"></span>
+            {% else %}
+              <span class="activity-dot"></span>
+            {% endif %}
+            <div class="activity-main">
+              <div class="activity-title">{{ a.action }}</div>
+              <div class="activity-meta">
+                <span class="text-secondary">{{ a.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                {% if a.actor %}<span class="text-secondary"> • {{ a.actor.username }}</span>{% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-secondary small">No activity yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

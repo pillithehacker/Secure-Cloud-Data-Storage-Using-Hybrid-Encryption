@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block title %}Upload{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="glass-card p-4">
+      <h3>Upload File</h3>
+      <form method="post" enctype="multipart/form-data">
+        <div class="drop-zone mb-3" id="dropZone">
+          <input type="file" id="uploadInput" name="file" class="form-control bg-dark text-white" required>
+          <p class="mb-0 mt-2 text-secondary">Drag & drop or select a file.</p>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">File Tag (optional)</label>
+          <input class="form-control bg-dark text-white" placeholder="finance, legal, contract">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Preview</label>
+          <div class="glass-card p-3 small text-secondary" id="previewText">No file selected.</div>
+        </div>
+        <div class="progress mb-3"><div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%">Ready</div></div>
+        <button class="btn btn-primary w-100"><i class="fa fa-upload"></i> Upload</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

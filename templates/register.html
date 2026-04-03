@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="glass-card p-4">
+      <h3 class="mb-3">Create Account</h3>
+      <form method="post">
+        <div class="row">
+          <div class="col-md-6 mb-3"><label>Username</label><input name="username" class="form-control bg-dark text-white" required></div>
+          <div class="col-md-6 mb-3"><label>Email</label><input type="email" name="email" class="form-control bg-dark text-white" required></div>
+          <div class="col-md-6 mb-3">
+            <label>Password</label>
+            <input type="password" id="regPassword" name="password" class="form-control bg-dark text-white" required>
+            <div class="password-meter mt-2"><div id="passwordStrengthBar"></div></div>
+            <small id="passwordStrengthText" class="text-secondary">Strength: N/A</small>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Role</label>
+            <select name="role" class="form-control bg-dark text-white">
+              <option value="user">Normal User</option>
+              <option value="auditor">Auditor</option>
+            </select>
+          </div>
+        </div>
+        <div class="glass-card p-3 mb-3">
+          <h6 class="mb-1">2FA & Email OTP (UI Preview)</h6>
+          <small class="text-secondary">Enable OTP and two-factor verification from profile security settings.</small>
+        </div>
+        <button class="btn btn-neon w-100">Register</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

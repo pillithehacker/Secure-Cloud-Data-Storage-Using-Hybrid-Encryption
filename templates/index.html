@@ -1,0 +1,111 @@
+{% extends "layout.html" %}
+{% block page_class %}home-page{% endblock %}
+{% block title %}Secure Cloud - Home{% endblock %}
+{% block content %}
+<section class="hero-section" aria-label="Hero">
+  <div class="hero-section-inner">
+    <div class="hero-col hero-col-left">
+      <h1 class="hero-heading">Built on Trust, Protected by Encryption</h1>
+      <p class="hero-subtitle">SecureCloud secures your files with hybrid encryption, privacy, and complete control.</p>
+
+      <div class="quote-slider glass-card quote-card-glass">
+        <div class="quote active">“Your files deserve more than storage — they deserve protection.”</div>
+        <div class="quote">“Hybrid encryption ensures both speed and security.”</div>
+        <div class="quote">“Privacy is not a feature, it is a right.”</div>
+        <div class="quote">“SecureCloud protects what matters most.”</div>
+      </div>
+
+      <div class="quote-dots hero-quote-dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+
+      <div class="hero-actions">
+        <a href="{{ url_for('register') }}" class="btn btn-neon"><i class="fa fa-user-plus"></i> Get Started</a>
+        <a href="{{ url_for('developers') }}" class="btn btn-outline-info"><i class="fa fa-code"></i> Meet Developers</a>
+      </div>
+    </div>
+
+    <div class="hero-col hero-col-right">
+      <div class="hero-visual">
+        <div class="hero-glow hero-glow-1"></div>
+        <div class="hero-glow hero-glow-2"></div>
+        <img class="hero-illustration" src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80" alt="Cyber security and data protection" loading="eager" />
+        <span class="hero-float-icon hf-shield"><i class="fa-solid fa-shield-halved"></i></span>
+        <span class="hero-float-icon hf-lock"><i class="fa-solid fa-lock"></i></span>
+        <span class="hero-float-icon hf-cloud"><i class="fa-solid fa-cloud"></i></span>
+        <span class="hero-float-icon hf-key"><i class="fa-solid fa-key"></i></span>
+        <span class="hero-float-icon hf-server"><i class="fa-solid fa-server"></i></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="row g-4 cards-section">
+  <div class="col-lg-4" data-aos="zoom-in">
+    <div class="glass-card p-4 h-100">
+      <h5><i class="fa fa-chart-line text-info"></i> Security Statistics</h5>
+      <div class="d-flex justify-content-between mt-3"><span>Encrypted Files</span><strong class="text-info">98%</strong></div>
+      <div class="d-flex justify-content-between"><span>Threat Prevention</span><strong class="text-success">99.3%</strong></div>
+      <div class="d-flex justify-content-between"><span>Uptime</span><strong class="text-warning">99.99%</strong></div>
+    </div>
+  </div>
+  <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="120">
+    <div class="glass-card p-4 h-100">
+      <h5><i class="fa fa-shield text-primary"></i> Why Choose Us</h5>
+      <ul class="mt-3 mb-0">
+        <li>Hybrid AES-256 + RSA encryption</li>
+        <li>Role-based security monitoring</li>
+        <li>Integrity verification and audit trails</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="220">
+    <div class="glass-card p-4 h-100">
+      <h5><i class="fa fa-file-upload text-pink"></i> Upload Animation</h5>
+      <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_9wpyhdzo.json" background="transparent" speed="1" style="height:110px;" loop autoplay></lottie-player>
+    </div>
+  </div>
+</section>
+
+<section class="glass-card p-4 mt-4" data-aos="fade-right">
+  <h4 class="mb-3">Encryption Process Timeline</h4>
+  <div class="timeline">
+    <div><span>1</span>Upload File</div>
+    <div><span>2</span>Generate AES-256 Key</div>
+    <div><span>3</span>Encrypt with AES-GCM</div>
+    <div><span>4</span>Encrypt AES key using RSA</div>
+    <div><span>5</span>Store and verify SHA-256 integrity</div>
+  </div>
+</section>
+
+<section class="row g-4 mt-1">
+  <div class="col-lg-6" data-aos="fade-up">
+    <div class="glass-card p-4 h-100">
+      <h4>Testimonials</h4>
+      <p class="text-secondary mb-1">"SecureCloud helps our team protect sensitive reports with confidence."</p>
+      <small>- Security Analyst</small>
+      <hr>
+      <p class="text-secondary mb-1">"The dashboard and audit workflows feel truly enterprise-ready."</p>
+      <small>- IT Administrator</small>
+    </div>
+  </div>
+  <div class="col-lg-6" data-aos="fade-up" data-aos-delay="150">
+    <div class="glass-card p-4 h-100">
+      <h4>FAQ</h4>
+      <div class="accordion faq-acc" id="faq">
+        <div class="accordion-item bg-transparent text-light border-secondary">
+          <h2 class="accordion-header"><button class="accordion-button collapsed bg-transparent text-light" data-bs-toggle="collapse" data-bs-target="#q1">How secure is hybrid encryption?</button></h2>
+          <div id="q1" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">AES protects file content while RSA protects key exchange, giving layered protection.</div></div>
+        </div>
+        <div class="accordion-item bg-transparent text-light border-secondary">
+          <h2 class="accordion-header"><button class="accordion-button collapsed bg-transparent text-light" data-bs-toggle="collapse" data-bs-target="#q2">Can auditors download files?</button></h2>
+          <div id="q2" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">No, auditors are restricted to viewing logs and integrity reports.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

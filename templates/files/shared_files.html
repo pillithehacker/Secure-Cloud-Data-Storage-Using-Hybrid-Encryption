@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block title %}Shared Files{% endblock %}
+{% block content %}
+<h2 class="mb-3">Shared With You</h2>
+<div class="glass-card p-3">
+  <table class="table table-dark table-striped datatable">
+    <thead><tr><th>Name</th><th>Owner</th><th>Status</th></tr></thead>
+    <tbody>{% for f in files %}<tr><td>{{ f.original_filename }}</td><td>{{ f.owner.username }}</td><td>{{ f.encryption_status }}</td></tr>{% endfor %}</tbody>
+  </table>
+</div>
+{% endblock %}

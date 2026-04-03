@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block title %}User Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+  <aside class="dash-sidebar glass-card p-3">
+    <h5 class="neon-text">User Hub</h5>
+    <a href="#" class="side-link"><i class="fa fa-gauge"></i> Dashboard</a>
+    <a href="{{ url_for('upload') }}" class="side-link"><i class="fa fa-upload"></i> Upload</a>
+    <a href="{{ url_for('shared_files') }}" class="side-link"><i class="fa fa-share-nodes"></i> Shared</a>
+    <a href="#" class="side-link"><i class="fa fa-heart"></i> Favorites</a>
+    <a href="#" class="side-link"><i class="fa fa-trash-arrow-up"></i> Recycle Bin</a>
+  </aside>
+  <main>
+    <h2 class="mb-4">User Dashboard</h2>
+    <div class="row g-3 mb-4">
+      <div class="col-md-4"><div class="glass-card p-3 card-glow"><h6>Uploaded Files</h6><h3>{{ user_files|length }}</h3></div></div>
+      <div class="col-md-4"><div class="glass-card p-3 card-glow"><h6>Storage Usage</h6><h3>{{ (storage / 1024)|round(2) }} KB</h3></div></div>
+      <div class="col-md-4"><div class="glass-card p-3 card-glow"><h6>Shared Files</h6><h3>{{ shared_files|length }}</h3></div></div>
+    </div>
+    <div class="row g-3 mb-3">
+      <div class="col-lg-8"><div class="glass-card p-3"><canvas id="userChart"></canvas></div></div>
+      <div class="col-lg-4">
+        <div class="glass-card p-3 mb-3"><h6>Storage Progress</h6><div class="progress"><div class="progress-bar bg-info" style="width: 64%">64%</div></div></div>
+        <div class="glass-card p-3"><h6>Live Encryption Status</h6><p class="mb-0 small text-success">All operations healthy</p></div>
+      </div>
+    </div>
+    <a href="{{ url_for('upload') }}" class="btn btn-primary mb-3"><i class="fa fa-upload"></i> Upload File</a>
+    <div class="glass-card p-3">
+      <h5>Recent Uploads</h5>
+      <table class="table table-dark table-striped datatable">
+        <thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>{% for f in user_files %}<tr><td>{{ f.original_filename }}</td><td>{{ f.file_type }}</td><td>{{ f.encryption_status }}</td><td>{{ f.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

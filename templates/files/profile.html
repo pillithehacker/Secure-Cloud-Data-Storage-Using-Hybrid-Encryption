@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="glass-card p-4">
+      <h3>Profile Management</h3>
+      <form method="post">
+        <div class="mb-3"><label>Username</label><input name="username" class="form-control bg-dark text-white" value="{{ current_user.username }}"></div>
+        <div class="mb-3"><label>New Password</label><input type="password" name="password" class="form-control bg-dark text-white" placeholder="Leave blank to keep current"></div>
+        <button class="btn btn-neon w-100">Update Profile</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

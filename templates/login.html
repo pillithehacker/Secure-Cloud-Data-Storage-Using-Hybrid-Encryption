@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="glass-card p-4">
+      <h3 class="mb-3">Login</h3>
+      <form method="post">
+        <div class="mb-3"><label>Email</label><input name="email" type="email" class="form-control bg-dark text-white" required></div>
+        <div class="mb-3"><label>Password</label><input name="password" type="password" class="form-control bg-dark text-white" required></div>
+        <button class="btn btn-neon w-100">Sign In</button>
+      </form>
+      <small class="text-secondary d-block mt-3">Demo: admin@securecloud.com / Admin@123</small>
+    </div>
+  </div>
+</div>
+{% endblock %}
