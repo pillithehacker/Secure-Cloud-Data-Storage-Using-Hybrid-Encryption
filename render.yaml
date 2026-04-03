@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: securecloud-hybrid-encryption
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: SECRET_KEY
+        generateValue: true
+      # Persist DB and file data on mounted disk.
+      - key: DATABASE_URL
+        value: sqlite:////var/data/secure_cloud.db
+      - key: UPLOAD_FOLDER
+        value: /var/data/uploads
+      - key: ENCRYPTED_FOLDER
+        value: /var/data/encrypted
+    disks:
+      - name: securecloud-data
+        mountPath: /var/data
+        sizeGB: 2

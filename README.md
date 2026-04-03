@@ -183,6 +183,47 @@ python app.py
 - If DB errors occur, delete local DB and rerun `seed.py` (development only).
 - Ensure Python package versions are compatible with your local Python version.
 
+## Deploy on Render
+
+This project is configured for Render via `render.yaml`.
+
+### Option A (recommended): Blueprint deploy
+
+1. Push this repo to GitHub.
+2. In Render: **New +** -> **Blueprint**.
+3. Select your repo. Render detects `render.yaml`.
+4. Click **Apply** to create the service and disk.
+5. Wait for deploy to complete.
+
+### Option B: Manual Web Service setup
+
+Use these settings in Render:
+
+- **Runtime:** Python
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `gunicorn app:app`
+
+Environment variables:
+
+- `SECRET_KEY` = any strong random value
+- `DATABASE_URL` = `sqlite:////var/data/secure_cloud.db`
+- `UPLOAD_FOLDER` = `/var/data/uploads`
+- `ENCRYPTED_FOLDER` = `/var/data/encrypted`
+
+Also attach a persistent disk:
+
+- **Mount path:** `/var/data`
+
+### Seed demo users on Render shell
+
+After first deploy, open Render Shell and run:
+
+```bash
+python seed.py
+```
+
+Then login with demo credentials from this README.
+
 ## License
 
 Academic / project use.

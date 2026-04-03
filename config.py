@@ -11,6 +11,6 @@ class Config:
         "DATABASE_URL", f"sqlite:///{BASE_DIR / 'secure_cloud.db'}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    UPLOAD_FOLDER = str(BASE_DIR / "static" / "uploads")
-    ENCRYPTED_FOLDER = str(BASE_DIR / "static" / "encrypted")
+    UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", str(BASE_DIR / "static" / "uploads"))
+    ENCRYPTED_FOLDER = os.environ.get("ENCRYPTED_FOLDER", str(BASE_DIR / "static" / "encrypted"))
     MAX_CONTENT_LENGTH = 100 * 1024 * 1024
