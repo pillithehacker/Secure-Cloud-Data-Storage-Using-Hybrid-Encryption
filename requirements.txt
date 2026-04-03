@@ -1,8 +1,10 @@
 Flask
-Flask-SQLAlchemy
-Flask-Login
 Flask-Bcrypt
+Flask-Login
+Flask-SQLAlchemy
+bcrypt
 cryptography
-Werkzeug
-SQLAlchemy>=2.0.36
 gunicorn
+pycryptodome
+sqlalchemy
+werkzeug
