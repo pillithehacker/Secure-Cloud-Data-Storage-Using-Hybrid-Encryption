@@ -1,16 +1,24 @@
 import os
-from pathlib import Path
 
-
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL", f"sqlite:///{BASE_DIR / 'secure_cloud.db'}"
+    SECRET_KEY = os.getenv("SECRET_KEY", "securecloud-secret-key")
+
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "DATABASE_URL",
+        "sqlite:///" + os.path.join(BASE_DIR, "secure_cloud.db")
     )
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", str(BASE_DIR / "static" / "uploads"))
-    ENCRYPTED_FOLDER = os.environ.get("ENCRYPTED_FOLDER", str(BASE_DIR / "static" / "encrypted"))
-    MAX_CONTENT_LENGTH = 100 * 1024 * 1024
+
+    UPLOAD_FOLDER = os.getenv(
+        "UPLOAD_FOLDER",
+        os.path.join(BASE_DIR, "uploads")
+    )
+
+    ENCRYPTED_FOLDER = os.getenv(
+        "ENCRYPTED_FOLDER",
+        os.path.join(BASE_DIR, "encrypted")
+    )
