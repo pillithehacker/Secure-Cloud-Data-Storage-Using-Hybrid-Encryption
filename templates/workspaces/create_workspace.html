@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="create-workspace-container">
+    <div class="create-workspace-card glass-card">
+        <!-- Card Header with Gradient -->
+        <div class="create-workspace-header">
+            <div class="header-icon">
+                <i class="fa fa-briefcase"></i>
+            </div>
+            <div class="header-text">
+                <h2 class="header-title">Create New Workspace</h2>
+                <p class="header-subtitle">Collaborate securely with your team</p>
+            </div>
+        </div>
+        
+        <!-- Card Body -->
+        <div class="create-workspace-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} glass-alert mb-3">
+                            <i class="fa fa-info-circle me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" class="create-form">
+                <div class="form-group-custom">
+                    <label for="name" class="form-label-custom">
+                        <i class="fa fa-folder-open"></i>
+                        Workspace Name <span class="required">*</span>
+                    </label>
+                    <input type="text" class="form-input-custom" id="name" name="name" required
+                           placeholder="e.g., Project Alpha, Marketing Team">
+                    <small class="form-hint">Choose a descriptive name for your workspace</small>
+                </div>
+
+                <div class="form-group-custom">
+                    <label for="description" class="form-label-custom">
+                        <i class="fa fa-align-left"></i>
+                        Description
+                    </label>
+                    <textarea class="form-input-custom form-textarea" id="description" name="description" rows="3"
+                              placeholder="Brief description of the workspace purpose..."></textarea>
+                    <small class="form-hint">Optional: Help others understand what this workspace is for</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-neon btn-create">
+                        <i class="fa fa-plus"></i>
+                        Create Workspace
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Card Footer -->
+        <div class="create-workspace-footer">
+            <a href="{{ url_for('workspaces') }}" class="btn btn-ghost">
+                <i class="fa fa-arrow-left"></i>
+                Back to Workspaces
+            </a>
+        </div>
+    </div>
+    
+    <!-- About Workspaces Info Card -->
+    <div class="about-workspace-card glass-card">
+        <div class="about-header">
+            <i class="fa fa-circle-info"></i>
+            <h4>About Workspaces</h4>
+        </div>
+        <p class="about-intro">Workspaces help teams collaborate securely by organizing files and managing access in one place.</p>
+        <ul class="about-list">
+            <li>
+                <i class="fa fa-users neon-icon"></i>
+                <span>Create a workspace to collaborate with your team</span>
+            </li>
+            <li>
+                <i class="fa fa-file-arrow-up neon-icon"></i>
+                <span>Upload and share files within the workspace</span>
+            </li>
+            <li>
+                <i class="fa fa-envelope neon-icon"></i>
+                <span>Invite team members by email</span>
+            </li>
+            <li>
+                <i class="fa fa-lock neon-icon"></i>
+                <span>All members can access workspace files securely</span>
+            </li>
+            <li>
+                <i class="fa fa-gear neon-icon"></i>
+                <span>Workspace admins can manage members and settings</span>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

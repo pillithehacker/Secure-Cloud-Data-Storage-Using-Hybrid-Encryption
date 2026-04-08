@@ -1,34 +1,105 @@
 {% extends "layout.html" %}
 {% block title %}Register{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-7">
-    <div class="glass-card p-4">
-      <h3 class="mb-3">Create Account</h3>
-      <form method="post">
+<div class="register-page">
+  <div class="register-card glass-card">
+    <!-- Card Header -->
+    <div class="register-header">
+      <div class="register-icon">
+        <i class="fa fa-user-shield"></i>
+      </div>
+      <div class="header-text">
+        <h2 class="register-title">Create Account</h2>
+        <p class="register-subtitle">Join SecureCloud and protect your files with advanced encryption.</p>
+      </div>
+    </div>
+    
+    <!-- Register Form -->
+    <div class="register-body">
+      <form method="post" class="register-form">
         <div class="row">
-          <div class="col-md-6 mb-3"><label>Username</label><input name="username" class="form-control bg-dark text-white" required></div>
-          <div class="col-md-6 mb-3"><label>Email</label><input type="email" name="email" class="form-control bg-dark text-white" required></div>
-          <div class="col-md-6 mb-3">
-            <label>Password</label>
-            <input type="password" id="regPassword" name="password" class="form-control bg-dark text-white" required>
-            <div class="password-meter mt-2"><div id="passwordStrengthBar"></div></div>
-            <small id="passwordStrengthText" class="text-secondary">Strength: N/A</small>
+          <div class="col-md-6">
+            <div class="form-group-custom">
+              <label class="form-label-custom">
+                <i class="fa fa-user"></i>
+                Username
+              </label>
+              <input type="text" name="username" class="form-input-custom" placeholder="Choose a username" required>
+            </div>
           </div>
-          <div class="col-md-6 mb-3">
-            <label>Role</label>
-            <select name="role" class="form-control bg-dark text-white">
-              <option value="user">Normal User</option>
-              <option value="auditor">Auditor</option>
-            </select>
+          <div class="col-md-6">
+            <div class="form-group-custom">
+              <label class="form-label-custom">
+                <i class="fa fa-envelope"></i>
+                Email Address
+              </label>
+              <input type="email" name="email" class="form-input-custom" placeholder="Enter your email" required>
+            </div>
           </div>
         </div>
-        <div class="glass-card p-3 mb-3">
-          <h6 class="mb-1">2FA & Email OTP (UI Preview)</h6>
-          <small class="text-secondary">Enable OTP and two-factor verification from profile security settings.</small>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group-custom">
+              <label class="form-label-custom">
+                <i class="fa fa-lock"></i>
+                Password
+              </label>
+              <input type="password" id="regPassword" name="password" class="form-input-custom" placeholder="Create a strong password" required>
+              <div class="password-strength-wrapper">
+                <div class="password-meter">
+                  <div class="password-meter-fill" id="passwordStrengthBar"></div>
+                </div>
+                <div class="strength-labels">
+                  <span id="passwordStrengthText">N/A</span>
+                  <span class="strength-weak">Weak</span>
+                  <span class="strength-medium">Medium</span>
+                  <span class="strength-strong">Strong</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group-custom">
+              <label class="form-label-custom">
+                <i class="fa fa-user-shield"></i>
+                Role
+              </label>
+              <select name="role" class="form-input-custom form-select-custom">
+                <option value="user">Normal User</option>
+                <option value="auditor">Auditor</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-neon w-100">Register</button>
+        
+        <!-- 2FA Feature Card -->
+        <div class="feature-card">
+          <div class="feature-content">
+            <div class="feature-icon">
+              <i class="fa fa-shield-halved"></i>
+            </div>
+            <div class="feature-text">
+              <h6>2FA & Email OTP</h6>
+              <small>Enable OTP and two-factor verification from profile security settings.</small>
+            </div>
+          </div>
+          <div class="feature-toggle">
+            <div class="toggle-switch"></div>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-register w-100">
+          <i class="fa fa-user-plus"></i>
+          Create Account
+        </button>
       </form>
+      
+      <!-- Login Link -->
+      <div class="login-prompt">
+        <span>Already have an account?</span>
+        <a href="{{ url_for('login') }}">Login</a>
+      </div>
     </div>
   </div>
 </div>

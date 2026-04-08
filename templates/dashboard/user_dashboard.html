@@ -4,18 +4,20 @@
 <div class="dashboard-shell">
   <aside class="dash-sidebar glass-card p-3">
     <h5 class="neon-text">User Hub</h5>
-    <a href="#" class="side-link"><i class="fa fa-gauge"></i> Dashboard</a>
+    <a href="#" class="side-link active"><i class="fa fa-gauge"></i> Dashboard</a>
     <a href="{{ url_for('upload') }}" class="side-link"><i class="fa fa-upload"></i> Upload</a>
     <a href="{{ url_for('shared_files') }}" class="side-link"><i class="fa fa-share-nodes"></i> Shared</a>
+    <a href="{{ url_for('workspaces') }}" class="side-link"><i class="fa fa-users"></i> Workspaces</a>
     <a href="#" class="side-link"><i class="fa fa-heart"></i> Favorites</a>
     <a href="#" class="side-link"><i class="fa fa-trash-arrow-up"></i> Recycle Bin</a>
   </aside>
   <main>
     <h2 class="mb-4">User Dashboard</h2>
     <div class="row g-3 mb-4">
-      <div class="col-md-4"><div class="glass-card p-3 card-glow"><h6>Uploaded Files</h6><h3>{{ user_files|length }}</h3></div></div>
-      <div class="col-md-4"><div class="glass-card p-3 card-glow"><h6>Storage Usage</h6><h3>{{ (storage / 1024)|round(2) }} KB</h3></div></div>
-      <div class="col-md-4"><div class="glass-card p-3 card-glow"><h6>Shared Files</h6><h3>{{ shared_files|length }}</h3></div></div>
+      <div class="col-md-3"><div class="glass-card p-3 card-glow"><h6>Uploaded Files</h6><h3>{{ user_files|length }}</h3></div></div>
+      <div class="col-md-3"><div class="glass-card p-3 card-glow"><h6>Storage Usage</h6><h3>{{ (storage / 1024)|round(2) }} KB</h3></div></div>
+      <div class="col-md-3"><div class="glass-card p-3 card-glow"><h6>Shared Files</h6><h3>{{ shared_files|length }}</h3></div></div>
+      <div class="col-md-3"><div class="glass-card p-3 card-glow"><h6>Workspaces</h6><h3>{{ workspaces|length }}</h3></div></div>
     </div>
     <div class="row g-3 mb-3">
       <div class="col-lg-8"><div class="glass-card p-3"><canvas id="userChart"></canvas></div></div>
@@ -24,6 +26,38 @@
         <div class="glass-card p-3"><h6>Live Encryption Status</h6><p class="mb-0 small text-success">All operations healthy</p></div>
       </div>
     </div>
+    
+    <!-- Workspaces Section -->
+    {% if workspaces %}
+    <div class="glass-card p-3 mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5><i class="fa fa-users"></i> My Workspaces</h5>
+        <a href="{{ url_for('workspaces') }}" class="btn btn-sm btn-primary">View All</a>
+      </div>
+      <div class="row g-2">
+        {% for workspace in workspaces[:3] %}
+        <div class="col-md-4">
+          <div class="border rounded p-2">
+            <h6 class="mb-1">{{ workspace.name }}</h6>
+            <small class="text-muted">
+              <i class="fa fa-users"></i> {{ workspace.get_member_count() }} members
+              <i class="fa fa-file ms-2"></i> {{ workspace.get_file_count() }} files
+            </small>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="glass-card p-3 mb-3">
+      <div class="text-center py-3">
+        <i class="fa fa-users fa-2x text-muted mb-2"></i>
+        <h6 class="text-muted">No Workspaces Yet</h6>
+        <a href="{{ url_for('create_workspace') }}" class="btn btn-sm btn-primary">Create Workspace</a>
+      </div>
+    </div>
+    {% endif %}
+    
     <a href="{{ url_for('upload') }}" class="btn btn-primary mb-3"><i class="fa fa-upload"></i> Upload File</a>
     <div class="glass-card p-3">
       <h5>Recent Uploads</h5>

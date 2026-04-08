@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="workspaces-container">
+    <!-- Page Header -->
+    <div class="workspaces-header">
+        <h2 class="workspaces-title"><i class="bi bi-people-fill"></i> My Workspaces</h2>
+        <a href="{{ url_for('create_workspace') }}" class="btn btn-neon btn-create-workspace">
+            <i class="bi bi-plus-circle"></i> Create Workspace
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Pending Invites Section -->
+    {% if pending_invites %}
+    <div class="card invites-card mb-3">
+        <div class="card-header invites-header">
+            <i class="bi bi-envelope"></i> Pending Invites
+        </div>
+        <div class="card-body invites-body">
+            <div class="list-group">
+                {% for invite in pending_invites %}
+                <div class="list-group-item invites-list-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ invite.workspace.name }}</strong>
+                        <br>
+                        <small class="text-muted">Invited by: {{ invite.inviter.username }}</small>
+                    </div>
+                    <div class="invite-actions">
+                        <a href="{{ url_for('accept_workspace_invite', invite_id=invite.id) }}" class="btn btn-success btn-sm">
+                            <i class="bi bi-check-circle"></i> Accept
+                        </a>
+                        <a href="{{ url_for('decline_workspace_invite', invite_id=invite.id) }}" class="btn btn-danger btn-sm">
+                            <i class="bi bi-x-circle"></i> Decline
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Workspaces Grid -->
+    {% if workspaces %}
+    <div class="row g-3">
+        {% for workspace in workspaces %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card workspace-card h-100">
+                <div class="card-body workspace-card-body">
+                    <h5 class="card-title workspace-card-title">
+                        <i class="bi bi-folder-fill"></i> {{ workspace.name }}
+                    </h5>
+                    {% if workspace.description %}
+                    <p class="card-text workspace-card-text">{{ workspace.description[:100] }}{% if workspace.description|length > 100 %}...{% endif %}</p>
+                    {% endif %}
+                    <div class="workspace-card-stats">
+                        <span><i class="bi bi-people"></i> {{ workspace.get_member_count() }} members</span>
+                        <span><i class="bi bi-file-earmark"></i> {{ workspace.get_file_count() }} files</span>
+                    </div>
+                </div>
+                <div class="card-footer workspace-card-footer">
+                    <small class="text-muted">Created {{ workspace.created_at.strftime('%b %d, %Y') }}</small>
+                    <a href="{{ url_for('view_workspace', workspace_id=workspace.id) }}" class="btn btn-outline-primary btn-sm">
+                        View <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State - Centered Glassmorphism Card -->
+    <div class="empty-state-wrapper">
+        <div class="empty-state-card">
+            <!-- Vector Illustration -->
+            <div class="empty-state-illustration">
+                <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" class="workspace-svg">
+                    <!-- Background glow -->
+                    <defs>
+                        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                        <linearGradient id="cyanPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#8c52ff;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="purplePink" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#8c52ff;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ff48c4;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Cloud base -->
+                    <ellipse cx="100" cy="120" rx="60" ry="25" fill="url(#cyanPurple)" opacity="0.15"/>
+                    
+                    <!-- Main folder -->
+                    <path d="M30 85 L30 55 L55 55 L65 45 L95 45 L95 85 Z" 
+                          fill="url(#cyanPurple)" opacity="0.3" stroke="url(#cyanPurple)" stroke-width="2" filter="url(#glow)"/>
+                    <rect x="30" y="85" width="65" height="45" rx="4" 
+                          fill="rgba(0,212,255,0.1)" stroke="url(#cyanPurple)" stroke-width="2" filter="url(#glow)"/>
+                    
+                    <!-- Secondary folder -->
+                    <path d="M85 75 L85 50 L105 50 L112 40 L135 40 L135 75 Z" 
+                          fill="url(#purplePink)" opacity="0.25" stroke="url(#purplePink)" stroke-width="1.5" filter="url(#glow)"/>
+                    <rect x="85" y="75" width="50" height="35" rx="3" 
+                          fill="rgba(140,82,255,0.1)" stroke="url(#purplePink)" stroke-width="1.5" filter="url(#glow)"/>
+                    
+                    <!-- Team members icons -->
+                    <circle cx="155" cy="55" r="12" fill="url(#cyanPurple)" opacity="0.4" stroke="url(#cyanPurple)" stroke-width="1.5" filter="url(#glow)"/>
+                    <circle cx="155" cy="52" r="4" fill="#ffffff" opacity="0.8"/>
+                    <path d="M147 62 Q155 58 163 62" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.8" stroke-linecap="round"/>
+                    
+                    <circle cx="170" cy="70" r="10" fill="url(#purplePink)" opacity="0.35" stroke="url(#purplePink)" stroke-width="1.5" filter="url(#glow)"/>
+                    <circle cx="170" cy="68" r="3" fill="#ffffff" opacity="0.7"/>
+                    <path d="M164 76 Q170 72 176 76" stroke="#ffffff" stroke-width="1.5" fill="none" opacity="0.7" stroke-linecap="round"/>
+                    
+                    <!-- Connection lines -->
+                    <path d="M95 85 Q125 75 145 55" stroke="url(#cyanPurple)" stroke-width="1.5" fill="none" opacity="0.5" stroke-dasharray="4,3" stroke-linecap="round"/>
+                    <path d="M135 85 Q150 80 162 70" stroke="url(#purplePink)" stroke-width="1.5" fill="none" opacity="0.4" stroke-dasharray="3,3" stroke-linecap="round"/>
+                    
+                    <!-- Lock icon for security -->
+                    <rect x="55" y="95" width="15" height="12" rx="2" fill="url(#cyanPurple)" opacity="0.5" filter="url(#glow)"/>
+                    <path d="M58 95 L58 90 Q62.5 85 67 90 L67 95" stroke="url(#cyanPurple)" stroke-width="1.5" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+                    <circle cx="62.5" cy="99" r="2" fill="#ffffff" opacity="0.9"/>
+                    
+                    <!-- Decorative dots -->
+                    <circle cx="25" cy="35" r="3" fill="#00d4ff" opacity="0.4"/>
+                    <circle cx="175" cy="30" r="2" fill="#8c52ff" opacity="0.5"/>
+                    <circle cx="45" cy="130" r="2.5" fill="#ff48c4" opacity="0.4"/>
+                    <circle cx="150" cy="120" r="2" fill="#00d4ff" opacity="0.3"/>
+                </svg>
+            </div>
+            <h3 class="empty-state-title">No Workspaces Yet</h3>
+            <p class="empty-state-text">Create a workspace to start collaborating with your team.</p>
+            <a href="{{ url_for('create_workspace') }}" class="btn btn-neon btn-lg empty-state-btn">
+                <i class="bi bi-plus-circle"></i> Create Your First Workspace
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

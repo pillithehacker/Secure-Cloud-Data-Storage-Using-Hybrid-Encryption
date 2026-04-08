@@ -2,220 +2,512 @@
 {% block title %}Admin Dashboard{% endblock %}
 {% block content %}
 <div class="dashboard-shell">
-  <aside class="dash-sidebar glass-card p-3">
-    <h5 class="neon-text">Admin Panel</h5>
-    <a href="#" class="side-link"><i class="fa fa-gauge"></i> Overview</a>
-    <a href="{{ url_for('files') }}" class="side-link"><i class="fa fa-folder"></i> Files</a>
-    <a href="{{ url_for('logs') }}" class="side-link"><i class="fa fa-clipboard-list"></i> Logs</a>
+  <!-- Left Sidebar -->
+  <aside class="dash-sidebar glass-card">
+    <div class="sidebar-header">
+      <h5 class="neon-text">Admin Panel</h5>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="side-link active">
+        <i class="fa fa-gauge"></i>
+        <span>Overview</span>
+      </a>
+      <a href="{{ url_for('files') }}" class="side-link">
+        <i class="fa fa-folder"></i>
+        <span>Files</span>
+      </a>
+      <a href="{{ url_for('logs') }}" class="side-link">
+        <i class="fa fa-clipboard-list"></i>
+        <span>Logs</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-stat">
+        <i class="fa fa-shield-halved"></i>
+        <span>System Status: <span class="text-success">Online</span></span>
+      </div>
+    </div>
   </aside>
-  <main>
-    <div class="glass-card p-3 mb-3 d-flex justify-content-between align-items-center">
-      <div class="search-wrapper position-relative">
+  
+  <!-- Main Content -->
+  <main class="dashboard-main">
+    <!-- Top Bar with Search & Profile -->
+    <div class="dashboard-topbar glass-card">
+      <div class="search-area">
         <span class="search-icon"><i class="fa fa-magnifying-glass"></i></span>
-        <input class="form-control search-glass" placeholder="Search users, files, logs...">
+        <input class="form-control dashboard-search" placeholder="Search users, files, logs...">
       </div>
-      <div class="d-flex gap-3 align-items-center ms-3">
-        <i class="fa fa-bell text-warning fs-5"></i>
-        <div class="avatar-circle small-avatar">{{ current_user.username[:1]|upper }}</div>
+      <div class="topbar-actions">
+        <!-- Notification Bell -->
+        <div class="notification-wrapper">
+          <button class="notification-btn" id="notifBtn">
+            <i class="fa fa-bell"></i>
+            <span class="notif-badge">3</span>
+          </button>
+          <div class="notification-dropdown" id="notifDropdown">
+            <div class="notif-header">
+              <span>Notifications</span>
+              <a href="#" class="notif-mark-read">Mark all read</a>
+            </div>
+            <div class="notif-list">
+              <div class="notif-item unread">
+                <i class="fa fa-user-plus text-primary"></i>
+                <div class="notif-content">
+                  <strong>New User Registration</strong>
+                  <small>john@example.com joined</small>
+                </div>
+              </div>
+              <div class="notif-item unread">
+                <i class="fa fa-lock text-warning"></i>
+                <div class="notif-content">
+                  <strong>Encryption Completed</strong>
+                  <small>file_encrypted.docx processed</small>
+                </div>
+              </div>
+              <div class="notif-item">
+                <i class="fa fa-check-circle text-success"></i>
+                <div class="notif-content">
+                  <strong>System Healthy</strong>
+                  <small>All checks passed</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- User Dropdown -->
+        <div class="user-dropdown-wrapper">
+          <button class="user-dropdown-btn" id="userDropdownBtn">
+            <div class="avatar-circle small-avatar">{{ current_user.username[:1]|upper }}</div>
+            <i class="fa fa-chevron-down ms-1"></i>
+          </button>
+          <div class="user-dropdown" id="userDropdown">
+            <div class="user-dropdown-header">
+              <strong>{{ current_user.username }}</strong>
+              <small class="text-muted">{{ current_user.email }}</small>
+            </div>
+            <div class="user-dropdown-divider"></div>
+            <a href="{{ url_for('profile') }}" class="user-dropdown-item">
+              <i class="fa fa-user"></i> Profile
+            </a>
+            <a href="#" class="user-dropdown-item">
+              <i class="fa fa-gear"></i> Settings
+            </a>
+            <div class="user-dropdown-divider"></div>
+            <a href="{{ url_for('logout') }}" class="user-dropdown-item text-danger">
+              <i class="fa fa-right-from-bracket"></i> Logout
+            </a>
+          </div>
+        </div>
       </div>
     </div>
-    <h2 class="mb-3">Admin Dashboard</h2>
-    <div class="row g-3 mb-4">
-      <div class="col-md-4"><div class="glass-card p-3 card-glow"><h6>Total Users</h6><h3>{{ stats.total_users }}</h3></div></div>
-      <div class="col-md-4"><div class="glass-card p-3 card-glow"><h6>Active Users</h6><h3>{{ stats.active_users }}</h3></div></div>
-      <div class="col-md-4"><div class="glass-card p-3 card-glow"><h6>Total Files</h6><h3>{{ stats.total_files }}</h3></div></div>
+    
+    <!-- Welcome Section -->
+    <div class="welcome-section glass-card">
+      <div class="welcome-content">
+        <h2 class="welcome-title">Welcome back, <span class="neon-text">{{ current_user.username }}</span></h2>
+        <p class="welcome-date text-secondary">{{ "Monday, April 7, 2026" }}</p>
+      </div>
+      <div class="quick-summary">
+        <div class="summary-item">
+          <i class="fa fa-users text-primary"></i>
+          <div>
+            <strong>{{ stats.total_users }}</strong>
+            <small>Total Users</small>
+          </div>
+        </div>
+        <div class="summary-item">
+          <i class="fa fa-file text-success"></i>
+          <div>
+            <strong>{{ stats.total_files }}</strong>
+            <small>Files</small>
+          </div>
+        </div>
+        <div class="summary-item">
+          <i class="fa fa-shield-halved text-warning"></i>
+          <div>
+            <strong>93%</strong>
+            <small>Security</small>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="row g-3 mb-4">
-      <div class="col-lg-8"><div class="glass-card p-3"><canvas id="activityChart"></canvas></div></div>
+    
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <a href="{{ url_for('create_workspace') }}" class="quick-action-btn">
+        <i class="fa fa-plus"></i>
+        <span>Add User</span>
+      </a>
+      <a href="{{ url_for('upload') }}" class="quick-action-btn">
+        <i class="fa fa-upload"></i>
+        <span>Upload File</span>
+      </a>
+      <a href="{{ url_for('create_workspace') }}" class="quick-action-btn">
+        <i class="fa fa-briefcase"></i>
+        <span>Create Workspace</span>
+      </a>
+      <a href="#" class="quick-action-btn">
+        <i class="fa fa-file-lines"></i>
+        <span>Generate Report</span>
+      </a>
+      <a href="{{ url_for('logs') }}" class="quick-action-btn">
+        <i class="fa fa-clipboard-list"></i>
+        <span>View Logs</span>
+      </a>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <div class="stat-card glass-card card-hover">
+          <div class="stat-icon stat-icon-users">
+            <i class="fa fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <h6 class="stat-label">Total Users</h6>
+            <h3 class="stat-value">{{ stats.total_users }}</h3>
+            <span class="stat-change text-success">+12% this month</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card glass-card card-hover">
+          <div class="stat-icon stat-icon-files">
+            <i class="fa fa-file"></i>
+          </div>
+          <div class="stat-content">
+            <h6 class="stat-label">Active Files</h6>
+            <h3 class="stat-value">{{ stats.total_files }}</h3>
+            <span class="stat-change text-success">+8% this week</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card glass-card card-hover">
+          <div class="stat-icon stat-icon-alerts">
+            <i class="fa fa-bell"></i>
+          </div>
+          <div class="stat-content">
+            <h6 class="stat-label">System Alerts</h6>
+            <h3 class="stat-value">0</h3>
+            <span class="stat-change text-muted">All systems normal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+      <div class="col-lg-8">
+        <div class="glass-card chart-card card-hover">
+          <div class="chart-header">
+            <h5 class="chart-title">Activity Overview</h5>
+            <select class="chart-range-select">
+              <option value="weekly">Weekly</option>
+              <option value="monthly" selected>Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
       <div class="col-lg-4">
-        <div class="glass-card p-3 mb-3"><h6>Security Score</h6><h3 class="text-success">93/100</h3></div>
-        <div class="glass-card p-3"><h6>System Alerts</h6><p class="small mb-0 text-secondary">No critical alerts. Monitoring active.</p></div>
-      </div>
-    </div>
-    <div class="glass-card p-3 mb-4">
-      <h5>User Management</h5>
-      <div class="table-toolbar">
-        <div class="toolbar-left">
-          <label>Show</label>
-          <select class="compact-select">
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-          </select>
-          <span>entries</span>
+        <div class="glass-card mb-3 card-hover">
+          <h6 class="mb-3 d-flex align-items-center gap-2">
+            <i class="fa fa-shield-halved text-success"></i> Security Score
+          </h6>
+          <div class="progress-wrapper">
+            <div class="progress-label">
+              <span>Overall Score</span>
+              <strong class="text-success">93/100</strong>
+            </div>
+            <div class="progress progress-neon">
+              <div class="progress-bar" style="width: 93%"></div>
+            </div>
+          </div>
+          <div class="progress-wrapper mt-3">
+            <div class="progress-label">
+              <span>Encryption</span>
+              <strong class="text-info">98%</strong>
+            </div>
+            <div class="progress progress-neon">
+              <div class="progress-bar bg-info" style="width: 98%"></div>
+            </div>
+          </div>
         </div>
-
-        <div class="toolbar-right">
-          <div class="compact-search-wrapper">
-            <i class="fas fa-search compact-search-icon"></i>
-            <input type="text" class="compact-search-input" placeholder="Search users..." />
+        <div class="glass-card card-hover">
+          <h6 class="mb-3 d-flex align-items-center gap-2">
+            <i class="fa fa-heartbeat text-danger"></i> System Health
+          </h6>
+          <div class="progress-wrapper">
+            <div class="progress-label">
+              <span>CPU Usage</span>
+              <strong class="text-muted">24%</strong>
+            </div>
+            <div class="progress">
+              <div class="progress-bar bg-primary" style="width: 24%"></div>
+            </div>
+          </div>
+          <div class="progress-wrapper mt-3">
+            <div class="progress-label">
+              <span>Storage</span>
+              <strong class="text-muted">67%</strong>
+            </div>
+            <div class="progress">
+              <div class="progress-bar bg-warning" style="width: 67%"></div>
+            </div>
           </div>
         </div>
       </div>
-      <table class="table table-dark table-striped datatable">
-        <thead>
-          <tr>
-            <th class="id-col">ID</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th class="actions-col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for u in users %}
-          <tr>
-            <td class="id-col">{{ u.id }}</td>
-            <td class="fw-600">{{ u.username }}</td>
-            <td class="text-muted-soft">{{ u.email }}</td>
-            <td>
-              {% if u.role == "admin" %}
-                <span class="role-badge role-admin">Admin</span>
-              {% elif u.role == "auditor" %}
-                <span class="role-badge role-auditor">Auditor</span>
-              {% else %}
-                <span class="role-badge role-user">User</span>
-              {% endif %}
-            </td>
-            <td>
-              {% if u.is_active %}
-                <span class="status-badge status-active">Active</span>
-              {% else %}
-                <span class="status-badge status-blocked">Blocked</span>
-              {% endif %}
-            </td>
-            <td class="actions-cell">
-              <a class="icon-btn btn-view" href="{{ url_for('profile') }}" data-bs-toggle="tooltip" title="View"><i class="fa fa-eye"></i></a>
-              <a class="icon-btn btn-edit" href="{{ url_for('profile') }}" data-bs-toggle="tooltip" title="Edit"><i class="fa fa-pen"></i></a>
-              <form method="post" action="{{ url_for('admin_block_user', user_id=u.id) }}" class="d-inline-block">
-                <button type="submit" class="icon-btn btn-block" data-bs-toggle="tooltip" title="Block/Unblock"><i class="fa fa-ban"></i></button>
-              </form>
-              <form method="post" action="{{ url_for('admin_delete_user', user_id=u.id) }}" class="d-inline-block">
-                <button type="submit" class="icon-btn btn-delete" data-bs-toggle="tooltip" title="Delete"><i class="fa fa-trash"></i></button>
-              </form>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
     </div>
-    <div class="glass-card p-3 mb-4">
-      <h5>File Management</h5>
-      <div class="table-toolbar">
-        <div class="toolbar-left">
-          <label>Show</label>
-          <select class="compact-select">
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-          </select>
-          <span>entries</span>
+    
+    <!-- User Management Table -->
+    <div class="glass-card table-card mb-4 card-hover">
+      <div class="table-header">
+        <div>
+          <h5 class="table-title">User Management</h5>
+          <p class="table-subtitle">Manage and monitor all registered users in the system</p>
         </div>
-
-        <div class="toolbar-right">
-          <div class="compact-search-wrapper">
-            <i class="fas fa-search compact-search-icon"></i>
-            <input type="text" class="compact-search-input" placeholder="Search files..." />
-          </div>
+        <button class="btn btn-neon btn-sm">
+          <i class="fa fa-plus"></i> Add User
+        </button>
+      </div>
+      <div class="table-controls">
+        <label>Show</label>
+        <select class="compact-select">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+        </select>
+        <span>entries</span>
+        <div class="table-search">
+          <i class="fas fa-search table-search-icon"></i>
+          <input type="text" class="table-search-input" placeholder="Search users..." />
         </div>
       </div>
-      <table class="table table-dark table-striped datatable">
-        <thead>
-          <tr>
-            <th class="id-col">ID</th>
-            <th>Name</th>
-            <th>Owner</th>
-            <th>Status</th>
-            <th class="actions-col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for f in files %}
-          {% set shared_count = f.shared_user_ids()|length %}
-          {% if shared_count > 0 %}
-            {% set status_label = "Shared" %}
-            {% set status_class = "status-shared" %}
-          {% else %}
-            {% set status_label = f.encryption_status|capitalize %}
-            {% if f.encryption_status == "raw" %}
-              {% set status_class = "status-raw" %}
-            {% elif f.encryption_status == "encrypted" %}
-              {% set status_class = "status-encrypted" %}
+      <div class="table-responsive">
+        <table class="table table-dark datatable table-sticky-header">
+          <thead>
+            <tr>
+              <th class="id-col">ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th class="actions-col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr class="table-row-hover">
+              <td class="id-col">{{ u.id }}</td>
+              <td class="fw-600">{{ u.username }}</td>
+              <td class="text-muted-soft">{{ u.email }}</td>
+              <td>
+                {% if u.role == "admin" %}
+                  <span class="role-badge role-admin">Admin</span>
+                {% elif u.role == "auditor" %}
+                  <span class="role-badge role-auditor">Auditor</span>
+                {% else %}
+                  <span class="role-badge role-user">User</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if u.is_active %}
+                  <span class="status-badge status-active">Active</span>
+                {% else %}
+                  <span class="status-badge status-blocked">Blocked</span>
+                {% endif %}
+              </td>
+              <td class="actions-cell">
+                <a class="icon-btn btn-view" href="{{ url_for('profile') }}" data-bs-toggle="tooltip" title="View Profile">
+                  <i class="fa fa-eye"></i>
+                </a>
+                <a class="icon-btn btn-edit" href="{{ url_for('profile') }}" data-bs-toggle="tooltip" title="Edit User">
+                  <i class="fa fa-pen"></i>
+                </a>
+                <form method="post" action="{{ url_for('admin_block_user', user_id=u.id) }}" class="d-inline-block">
+                  <button type="submit" class="icon-btn btn-block" data-bs-toggle="tooltip" title="Block/Unblock User">
+                    <i class="fa fa-ban"></i>
+                  </button>
+                </form>
+                <form method="post" action="{{ url_for('admin_delete_user', user_id=u.id) }}" class="d-inline-block">
+                  <button type="submit" class="icon-btn btn-delete" data-bs-toggle="tooltip" title="Delete User">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if not users %}
+      <div class="empty-table-state">
+        <i class="fa fa-users"></i>
+        <p>No users found</p>
+      </div>
+      {% endif %}
+    </div>
+    
+    <!-- File Management Table -->
+    <div class="glass-card table-card mb-4 card-hover">
+      <div class="table-header">
+        <div>
+          <h5 class="table-title">File Management</h5>
+          <p class="table-subtitle">Monitor and manage all files in the system</p>
+        </div>
+        <a href="{{ url_for('upload') }}" class="btn btn-neon btn-sm">
+          <i class="fa fa-upload"></i> Upload File
+        </a>
+      </div>
+      <div class="table-controls">
+        <label>Show</label>
+        <select class="compact-select">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+        </select>
+        <span>entries</span>
+        <div class="table-search">
+          <i class="fas fa-search table-search-icon"></i>
+          <input type="text" class="table-search-input" placeholder="Search files..." />
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-dark datatable table-sticky-header">
+          <thead>
+            <tr>
+              <th class="id-col">ID</th>
+              <th>Name</th>
+              <th>Owner</th>
+              <th>Status</th>
+              <th class="actions-col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in files %}
+            {% set shared_count = f.shared_user_ids()|length if f.shared_user_ids else 0 %}
+            {% if shared_count > 0 %}
+              {% set status_label = "Shared" %}
+              {% set status_class = "status-shared" %}
             {% else %}
-              {% set status_class = "status-decrypted" %}
+              {% set status_label = f.encryption_status|capitalize if f.encryption_status else "Raw" %}
+              {% if f.encryption_status == "raw" %}
+                {% set status_class = "status-raw" %}
+              {% elif f.encryption_status == "encrypted" %}
+                {% set status_class = "status-encrypted" %}
+              {% else %}
+                {% set status_class = "status-decrypted" %}
+              {% endif %}
             {% endif %}
-          {% endif %}
-          <tr>
-            <td class="id-col">{{ f.id }}</td>
-            <td class="fw-600">{{ f.original_filename }}</td>
-            <td class="text-muted-soft">{{ f.owner.username }}</td>
-            <td>
-              <span class="status-badge {{ status_class }}">{{ status_label }}</span>
-            </td>
-            <td class="actions-cell">
-              <a class="icon-btn btn-encrypt" href="{{ url_for('encrypt_file', file_id=f.id) }}" data-bs-toggle="tooltip" title="Encrypt File"><i class="fa fa-lock"></i></a>
-              <a class="icon-btn btn-decrypt" href="{{ url_for('decrypt_file', file_id=f.id) }}" data-bs-toggle="tooltip" title="Decrypt File"><i class="fa fa-lock-open"></i></a>
-              <a class="icon-btn btn-download" href="{{ url_for('download_file', file_id=f.id) }}" data-bs-toggle="tooltip" title="Download File"><i class="fa fa-download"></i></a>
-              <a class="icon-btn btn-delete delete-link" href="{{ url_for('delete_file', file_id=f.id) }}" data-bs-toggle="tooltip" title="Delete File"><i class="fa fa-trash"></i></a>
-
-              <button class="icon-btn btn-share" data-bs-toggle="modal" data-bs-target="#mf{{ f.id }}" title="Share File">
-                <i class="fa fa-share-nodes" data-bs-toggle="tooltip" title="Share File"></i>
-              </button>
-
-              <div class="modal fade" id="mf{{ f.id }}">
-                <div class="modal-dialog">
-                  <div class="modal-content bg-dark text-white">
-                    <div class="modal-body">
-                      <form method="post" action="{{ url_for('share_file', file_id=f.id) }}">
-                        <div class="mb-2">
-                          <label class="form-label">Share with email</label>
-                          <input class="form-control bg-black text-white" name="email" required>
-                        </div>
-                        <button class="btn btn-pink w-100"><i class="fa fa-share-nodes"></i> Share</button>
-                      </form>
+            <tr class="table-row-hover">
+              <td class="id-col">{{ f.id }}</td>
+              <td class="fw-600">{{ f.original_filename }}</td>
+              <td class="text-muted-soft">{{ f.owner.username }}</td>
+              <td>
+                <span class="status-badge {{ status_class }}">{{ status_label }}</span>
+              </td>
+              <td class="actions-cell">
+                <a class="icon-btn btn-encrypt" href="{{ url_for('encrypt_file', file_id=f.id) }}" data-bs-toggle="tooltip" title="Encrypt File">
+                  <i class="fa fa-lock"></i>
+                </a>
+                <a class="icon-btn btn-decrypt" href="{{ url_for('decrypt_file', file_id=f.id) }}" data-bs-toggle="tooltip" title="Decrypt File">
+                  <i class="fa fa-lock-open"></i>
+                </a>
+                <a class="icon-btn btn-download" href="{{ url_for('download_file', file_id=f.id) }}" data-bs-toggle="tooltip" title="Download File">
+                  <i class="fa fa-download"></i>
+                </a>
+                <a class="icon-btn btn-delete delete-link" href="{{ url_for('delete_file', file_id=f.id) }}" data-bs-toggle="tooltip" title="Delete File">
+                  <i class="fa fa-trash"></i>
+                </a>
+                <button class="icon-btn btn-share" data-bs-toggle="modal" data-bs-target="#mf{{ f.id }}" title="Share File">
+                  <i class="fa fa-share-nodes"></i>
+                </button>
+                
+                <div class="modal fade" id="mf{{ f.id }}">
+                  <div class="modal-dialog">
+                    <div class="modal-content bg-dark text-white">
+                      <div class="modal-body">
+                        <form method="post" action="{{ url_for('share_file', file_id=f.id) }}">
+                          <div class="mb-2">
+                            <label class="form-label">Share with email</label>
+                            <input class="form-control bg-black text-white" name="email" required>
+                          </div>
+                          <button class="btn btn-pink w-100"><i class="fa fa-share-nodes"></i> Share</button>
+                        </form>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if not files %}
+      <div class="empty-table-state">
+        <i class="fa fa-file-circle-xmark"></i>
+        <p>No files found</p>
+      </div>
+      {% endif %}
     </div>
-
-    <div class="recent-activity p-3 mb-4">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="mb-0">Recent File Activity</h5>
-        <span class="text-secondary small">Latest encrypted-storage operations</span>
+    
+    <!-- Recent File Activity -->
+    <div class="glass-card activity-card mb-4 card-hover">
+      <div class="activity-header">
+        <div>
+          <h5 class="activity-title">Recent File Activity</h5>
+          <p class="activity-subtitle">Latest encrypted-storage operations</p>
+        </div>
+        <div class="activity-filters">
+          <button class="activity-filter-btn active" data-filter="all">All</button>
+          <button class="activity-filter-btn" data-filter="login"><i class="fa fa-right-to-bracket"></i> Login</button>
+          <button class="activity-filter-btn" data-filter="upload"><i class="fa fa-upload"></i> Upload</button>
+          <button class="activity-filter-btn" data-filter="encrypt"><i class="fa fa-lock"></i> Encrypt</button>
+          <button class="activity-filter-btn" data-filter="decrypt"><i class="fa fa-lock-open"></i> Decrypt</button>
+          <button class="activity-filter-btn" data-filter="logout"><i class="fa fa-right-from-bracket"></i> Logout</button>
+        </div>
       </div>
       <div class="activity-list">
         {% if logs %}
           {% for l in logs %}
-            <div class="activity-item">
-              {% if "Uploaded" in l.action %}
-                <span class="activity-dot dot-upload"></span>
-              {% elif "Encrypted" in l.action %}
-                <span class="activity-dot dot-encrypt"></span>
-              {% elif "Shared" in l.action %}
-                <span class="activity-dot dot-share"></span>
-              {% elif "Deleted" in l.action %}
-                <span class="activity-dot dot-delete"></span>
+          <div class="activity-item" data-type="{{ l.action|lower }}">
+            <div class="activity-icon-wrapper">
+              {% if "login" in l.action|lower %}
+                <i class="fa fa-right-to-bracket text-primary"></i>
+              {% elif "logout" in l.action|lower %}
+                <i class="fa fa-right-from-bracket text-secondary"></i>
+              {% elif "upload" in l.action|lower %}
+                <i class="fa fa-upload text-success"></i>
+              {% elif "encrypt" in l.action|lower %}
+                <i class="fa fa-lock text-warning"></i>
+              {% elif "decrypt" in l.action|lower %}
+                <i class="fa fa-lock-open text-info"></i>
+              {% elif "share" in l.action|lower %}
+                <i class="fa fa-share-nodes text-pink"></i>
+              {% elif "delete" in l.action|lower %}
+                <i class="fa fa-trash text-danger"></i>
               {% else %}
-                <span class="activity-dot"></span>
+                <i class="fa fa-circle text-muted"></i>
               {% endif %}
-              <div class="activity-main">
-                <div class="activity-title">{{ l.action }}</div>
-                <div class="activity-meta">
-                  <span class="text-secondary">{{ l.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
-                  {% if l.actor %}<span class="text-secondary"> • {{ l.actor.username }}</span>{% endif %}
-                </div>
+            </div>
+            <div class="activity-main">
+              <div class="activity-action">{{ l.action }}</div>
+              <div class="activity-meta">
+                <span class="text-secondary">{{ l.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                {% if l.actor %}<span class="text-secondary"> • {{ l.actor.username }}</span>{% endif %}
               </div>
             </div>
+          </div>
           {% endfor %}
         {% else %}
-          <div class="text-secondary small">No logs yet.</div>
+          <div class="empty-activity-state">
+            <i class="fa fa-clipboard"></i>
+            <p>No activity logs yet</p>
+          </div>
         {% endif %}
       </div>
     </div>

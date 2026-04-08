@@ -18,45 +18,90 @@
   <div class="bg-orb orb-1"></div>
   <div class="bg-orb orb-2"></div>
   <div class="bg-orb orb-3"></div>
-  <nav class="navbar navbar-expand-lg navbar-dark nav-glass sticky-top">
+  
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNavbar">
     <div class="container">
-      <a class="navbar-brand neon-text" href="{{ url_for('index') }}">SecureCloud</a>
-      <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#n"><span class="navbar-toggler-icon"></span></button>
-      <div id="n" class="collapse navbar-collapse">
+      <!-- Logo -->
+      <a class="navbar-brand" href="{{ url_for('index') }}">
+        <span class="brand-icon"><i class="fa fa-shield-halved"></i></span>
+        <span class="brand-text">SecureCloud</span>
+      </a>
+      
+      <!-- Mobile Toggle -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="toggler-icon"><i class="fa fa-bars"></i></span>
+      </button>
+      
+      <!-- Navigation Menu -->
+      <div class="collapse navbar-collapse" id="navMenu">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a class="nav-link {% if request.endpoint=='index' %}active{% endif %}" href="{{ url_for('index') }}">Home</a>
+            <a class="nav-link {% if request.endpoint=='index' %}active{% endif %}" href="{{ url_for('index') }}">
+              <i class="fa fa-home"></i>
+              <span>Home</span>
+            </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if request.endpoint=='developers' %}active{% endif %}" href="{{ url_for('developers') }}">Developers</a>
+            <a class="nav-link {% if request.endpoint=='developers' %}active{% endif %}" href="{{ url_for('developers') }}">
+              <i class="fa fa-code"></i>
+              <span>Developers</span>
+            </a>
           </li>
+          
           {% if current_user.is_authenticated %}
+            <li class="nav-divider"><span></span></li>
             <li class="nav-item">
               <a
                 class="nav-link {% if request.endpoint in ['admin_dashboard','user_dashboard','auditor_dashboard'] %}active{% endif %}"
                 href="{% if current_user.role == 'admin' %}{{ url_for('admin_dashboard') }}{% elif current_user.role == 'auditor' %}{{ url_for('auditor_dashboard') }}{% else %}{{ url_for('user_dashboard') }}{% endif %}"
               >
-                Dashboard
+                <i class="fa fa-gauge"></i>
+                <span>Dashboard</span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {% if request.endpoint=='files' %}active{% endif %}" href="{{ url_for('files') }}">Files</a>
+              <a class="nav-link {% if request.endpoint=='files' %}active{% endif %}" href="{{ url_for('files') }}">
+                <i class="fa fa-folder"></i>
+                <span>Files</span>
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {% if request.endpoint=='logs' %}active{% endif %}" href="{{ url_for('logs') }}">Logs</a>
+              <a class="nav-link {% if request.endpoint in ['workspaces', 'view_workspace', 'create_workspace'] %}active{% endif %}" href="{{ url_for('workspaces') }}">
+                <i class="fa fa-briefcase"></i>
+                <span>Workspaces</span>
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {% if request.endpoint=='profile' %}active{% endif %}" href="{{ url_for('profile') }}">Profile</a>
+              <a class="nav-link {% if request.endpoint=='logs' %}active{% endif %}" href="{{ url_for('logs') }}">
+                <i class="fa fa-clipboard-list"></i>
+                <span>Logs</span>
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+              <a class="nav-link {% if request.endpoint=='profile' %}active{% endif %}" href="{{ url_for('profile') }}">
+                <i class="fa fa-user"></i>
+                <span>Profile</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link nav-logout" href="{{ url_for('logout') }}">
+                <i class="fa fa-right-from-bracket"></i>
+                <span>Logout</span>
+              </a>
             </li>
           {% else %}
+            <li class="nav-divider"><span></span></li>
             <li class="nav-item">
-              <a class="nav-link {% if request.endpoint=='login' %}active{% endif %}" href="{{ url_for('login') }}">Login</a>
+              <a class="nav-link nav-login {% if request.endpoint=='login' %}active{% endif %}" href="{{ url_for('login') }}">
+                <i class="fa fa-right-to-bracket"></i>
+                <span>Login</span>
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {% if request.endpoint=='register' %}active{% endif %}" href="{{ url_for('register') }}">Sign Up</a>
+              <a class="nav-link nav-signup {% if request.endpoint=='register' %}active{% endif %}" href="{{ url_for('register') }}">
+                <i class="fa fa-user-plus"></i>
+                <span>Sign Up</span>
+              </a>
             </li>
           {% endif %}
         </ul>
@@ -80,11 +125,28 @@
   </main>
 
   <footer class="footer-glass">
-    <div class="container py-4 text-center">
-      <h6 class="mb-1 text-light">SecureCloud Cyber Platform</h6>
-      <div class="text-secondary">Acharya Nagarjuna University</div>
-      <div class="text-secondary">Cyber Security Department (2022–2026)</div>
-      <small class="d-block mt-2 text-muted">© 2026 SecureCloud Cyber Platform. All Rights Reserved.</small>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span class="footer-icon"><i class="fa fa-shield-halved"></i></span>
+        <h6 class="footer-title">SecureCloud Cyber Platform</h6>
+        <p class="footer-subtitle">Secure file protection with hybrid encryption</p>
+      </div>
+      <div class="footer-info">
+        <span>Acharya Nagarjuna University</span>
+        <span class="info-divider">•</span>
+        <span>Cyber Security Department (2022–2026)</span>
+      </div>
+      <div class="footer-social">
+        <a href="https://github.com/pillithehacker" target="_blank" class="social-link" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/arunkumar-pilli" target="_blank" class="social-link" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+        <a href="https://www.instagram.com/arun_public" target="_blank" class="social-link" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="mailto:arunkumarpilli3@gmail.com" class="social-link" title="Email"><i class="fa fa-envelope"></i></a>
+        <a href="{{ url_for('index') }}" class="social-link" title="Security">
+          <i class="fa fa-shield-halved"></i>
+        </a>
+      </div>
+      <div class="footer-divider"></div>
+      <p class="footer-copyright">© 2026 SecureCloud Cyber Platform. All Rights Reserved.</p>
     </div>
   </footer>
 

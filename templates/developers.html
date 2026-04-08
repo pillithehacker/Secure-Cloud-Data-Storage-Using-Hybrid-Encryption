@@ -2,54 +2,118 @@
 {% block title %}Developers{% endblock %}
 {% block content %}
 <section class="developers-section">
-  <h2 class="neon-text dev-title">Our Developers</h2>
-  <p class="dev-subtitle">Meet the minds behind SecureCloud</p>
-  <div class="neon-divider"></div>
+  <div class="developers-header">
+    <div class="section-icon">
+      <i class="fa fa-users"></i>
+    </div>
+    <h2 class="section-title">Our Developers</h2>
+    <p class="section-subtitle">Meet the minds behind SecureCloud</p>
+    <div class="section-divider"></div>
+  </div>
 
   <div class="developer-grid">
-    <article class="glass-card dev-card dev-leader-card position-relative card-fade-in">
-      <span class="badge badge-leader">Team Leader</span>
-      <div class="developer-avatar image-avatar">
-        <img src="{{ url_for('static', filename='images/developers/cherisma.jpg') }}" alt="P. Cherisma">
+    <!-- Team Leader Card -->
+    <article class="dev-card glass-card dev-leader-card card-fade-in">
+      <span class="leader-badge">
+        <i class="fa fa-crown"></i>
+        Team Leader
+      </span>
+      <div class="dev-avatar-wrapper">
+        <div class="dev-avatar">
+          <img src="{{ url_for('static', filename='images/developers/cherisma.jpg') }}" alt="P. Cherisma">
+        </div>
+        <div class="avatar-glow"></div>
       </div>
-      <div class="dev-icon"><i class="fa-solid fa-code"></i></div>
-      <h4 class="mt-3 mb-2 dev-name">P. Cherisma</h4>
-      <div class="roll-number">Y22CY3243</div>
-      <div class="dev-role role-front">Frontend Developer</div>
-      <div class="role-pill role-leader">Team Leader</div>
+      <div class="dev-icon">
+        <i class="fa-solid fa-code"></i>
+      </div>
+      <h4 class="dev-name">P. Cherisma</h4>
+      <p class="dev-roll">Y22CY3243</p>
+      <div class="dev-role">
+        <i class="fa fa-laptop-code"></i>
+        <span class="role-text role-front">Frontend Developer</span>
+      </div>
+      <div class="dev-social">
+        <a href="https://github.com/236890" target="_blank" rel="noopener noreferrer" class="social-btn" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/podilapu-cherisma/" target="_blank" rel="noopener noreferrer" class="social-btn" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+        <a href="mailto:podilapucherisma@gmail.com" class="social-btn" title="Email"><i class="fa-solid fa-envelope"></i></a>
+        <a href="https://www.instagram.com/podilapu_cherry" target="_blank" rel="noopener noreferrer" class="social-btn" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      </div>
     </article>
 
-    <article class="glass-card dev-card card-fade-in delay-1">
-      <div class="developer-avatar image-avatar">
-        <img src="{{ url_for('static', filename='images/developers/guru.jpg') }}" alt="P. Guru Sai Charan">
+    <!-- Backend Developer Card -->
+    <article class="dev-card glass-card card-fade-in delay-1">
+      <div class="dev-avatar-wrapper">
+        <div class="dev-avatar">
+          <img src="{{ url_for('static', filename='images/developers/guru.jpg') }}" alt="P. Guru Sai Charan">
+        </div>
+        <div class="avatar-glow"></div>
       </div>
-      <div class="dev-icon"><i class="fa-solid fa-server"></i></div>
-      <h4 class="mt-3 mb-2 dev-name">P. Guru Sai Charan</h4>
-      <div class="roll-number">L23CY3272</div>
-      <div class="dev-role role-back">Backend Developer</div>
-      <div class="role-pill role-member">Team Member</div>
+      <div class="dev-icon">
+        <i class="fa-solid fa-server"></i>
+      </div>
+      <h4 class="dev-name">P. Guru Sai Charan</h4>
+      <p class="dev-roll">L23CY3272</p>
+      <div class="dev-role">
+        <i class="fa fa-database"></i>
+        <span class="role-text role-back">Backend Developer</span>
+      </div>
+      <div class="dev-social">
+        <a href="https://github.com/Charan-022" target="_blank" rel="noopener noreferrer" class="social-btn" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/pinninti-guru-sai-charan-7b03a133b" target="_blank" rel="noopener noreferrer" class="social-btn" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+        <a href="mailto:pinninticharan3838@gmail.com" class="social-btn" title="Email"><i class="fa-solid fa-envelope"></i></a>
+        <a href="https://www.instagram.com/the_game__master___022" target="_blank" rel="noopener noreferrer" class="social-btn" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      </div>
     </article>
 
-    <article class="glass-card dev-card card-fade-in delay-2">
-      <div class="developer-avatar image-avatar">
-        <img src="{{ url_for('static', filename='images/developers/arun.jpg') }}" alt="P. Arun Kumar">
+    <!-- UI/UX Designer Card -->
+    <article class="dev-card glass-card card-fade-in delay-2">
+      <div class="dev-avatar-wrapper">
+        <div class="dev-avatar">
+          <img src="{{ url_for('static', filename='images/developers/arun.jpg') }}" alt="P. Arun Kumar">
+        </div>
+        <div class="avatar-glow"></div>
       </div>
-      <div class="dev-icon"><i class="fa-solid fa-pen-ruler"></i></div>
-      <h4 class="mt-3 mb-2 dev-name">P. Arun Kumar</h4>
-      <div class="roll-number">Y22CY3242</div>
-      <div class="dev-role role-ui">UI/UX Designer</div>
-      <div class="role-pill role-member">Team Member</div>
+      <div class="dev-icon">
+        <i class="fa-solid fa-pen-ruler"></i>
+      </div>
+      <h4 class="dev-name">P. Arun Kumar</h4>
+      <p class="dev-roll">Y22CY3242</p>
+      <div class="dev-role">
+        <i class="fa fa-palette"></i>
+        <span class="role-text role-ui">UI/UX Designer</span>
+      </div>
+      <div class="dev-social">
+        <a href="https://github.com/pillithehacker" target="_blank" rel="noopener noreferrer" class="social-btn" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/arunkumar-pilli" target="_blank" rel="noopener noreferrer" class="social-btn" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+        <a href="mailto:arunkumarpilli3@gmail.com" class="social-btn" title="Email"><i class="fa-solid fa-envelope"></i></a>
+        <a href="https://www.instagram.com/arun_public" target="_blank" rel="noopener noreferrer" class="social-btn" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      </div>
     </article>
 
-    <article class="glass-card dev-card card-fade-in delay-3">
-      <div class="developer-avatar image-avatar">
-        <img src="{{ url_for('static', filename='images/developers/venkatesh.jpg') }}" alt="M. Venkatesh">
+    <!-- QA & Tester Card -->
+    <article class="dev-card glass-card card-fade-in delay-3">
+      <div class="dev-avatar-wrapper">
+        <div class="dev-avatar">
+          <img src="{{ url_for('static', filename='images/developers/venkatesh.jpg') }}" alt="M. Venkatesh">
+        </div>
+        <div class="avatar-glow"></div>
       </div>
-      <div class="dev-icon"><i class="fa-solid fa-vial-circle-check"></i></div>
-      <h4 class="mt-3 mb-2 dev-name">M. Venkatesh</h4>
-      <div class="roll-number">Y22CY3234</div>
-      <div class="dev-role role-qa">QA & Tester</div>
-      <div class="role-pill role-member">Team Member</div>
+      <div class="dev-icon">
+        <i class="fa-solid fa-vial-circle-check"></i>
+      </div>
+      <h4 class="dev-name">M. Venkatesh</h4>
+      <p class="dev-roll">Y22CY3234</p>
+      <div class="dev-role">
+        <i class="fa fa-clipboard-check"></i>
+        <span class="role-text role-qa">QA & Tester</span>
+      </div>
+      <div class="dev-social">
+        <a href="https://github.com/menigavenkatesh" target="_blank" rel="noopener noreferrer" class="social-btn" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/meniga-venkatesh-50165425b" target="_blank" rel="noopener noreferrer" class="social-btn" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+        <a href="mailto:menigavenkatesh94@gmail.com" class="social-btn" title="Email"><i class="fa-solid fa-envelope"></i></a>
+        <a href="https://www.instagram.com/thevenky10" target="_blank" rel="noopener noreferrer" class="social-btn" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      </div>
     </article>
   </div>
 </section>

@@ -1,16 +1,108 @@
 {% extends "layout.html" %}
 {% block title %}Profile{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="glass-card p-4">
-      <h3>Profile Management</h3>
-      <form method="post">
-        <div class="mb-3"><label>Username</label><input name="username" class="form-control bg-dark text-white" value="{{ current_user.username }}"></div>
-        <div class="mb-3"><label>New Password</label><input type="password" name="password" class="form-control bg-dark text-white" placeholder="Leave blank to keep current"></div>
-        <button class="btn btn-neon w-100">Update Profile</button>
-      </form>
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="row g-0">
+            <!-- Left Column - Avatar & User Info -->
+            <div class="col-lg-4 profile-info-section">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar">
+                        <span class="avatar-initials">{{ current_user.username[:2]|upper }}</span>
+                    </div>
+                    <div class="profile-status-indicator"></div>
+                </div>
+                
+                <h4 class="profile-username">{{ current_user.username }}</h4>
+                
+                <span class="profile-role-badge role-{{ current_user.role }}">
+                    {{ current_user.role|title }}
+                </span>
+                
+                <div class="profile-details">
+                    <div class="profile-detail-item">
+                        <i class="bi bi-envelope-fill"></i>
+                        <span>{{ current_user.email }}</span>
+                    </div>
+                    <div class="profile-detail-item">
+                        <i class="bi bi-clock-fill"></i>
+                        <span>Last login: {{ current_user.last_login.strftime('%b %d, %Y') if current_user.last_login else 'N/A' }}</span>
+                    </div>
+                    <div class="profile-detail-item">
+                        <i class="bi bi-calendar-event-fill"></i>
+                        <span>Member since: {{ current_user.created_at.strftime('%b %d, %Y') }}</span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-outline-primary btn-sm profile-avatar-btn">
+                    <i class="bi bi-camera-fill"></i> Change Avatar
+                </button>
+            </div>
+            
+            <!-- Right Column - Profile Form -->
+            <div class="col-lg-8 profile-form-section">
+                <h4 class="profile-form-title">Update Profile</h4>
+                <p class="profile-form-subtitle">Manage your account settings and preferences</p>
+                
+                <form method="post" class="profile-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-person-fill"></i> Username
+                                </label>
+                                <input type="text" name="username" class="form-control profile-input" value="{{ current_user.username }}" placeholder="Enter your username">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-envelope-fill"></i> Email
+                                </label>
+                                <input type="email" class="form-control profile-input" value="{{ current_user.email }}" disabled>
+                                <small class="form-text">Email cannot be changed</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="profile-divider">
+                    
+                    <div class="form-section-title">Change Password</div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-lock-fill"></i> Current Password
+                                </label>
+                                <input type="password" name="current_password" class="form-control profile-input" placeholder="Enter current password">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-key-fill"></i> New Password
+                                </label>
+                                <input type="password" name="password" class="form-control profile-input" placeholder="Enter new password">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="bi bi-check-circle-fill"></i> Confirm New Password
+                        </label>
+                        <input type="password" name="confirm_password" class="form-control profile-input" placeholder="Confirm new password">
+                    </div>
+                    
+                    <div class="profile-form-actions">
+                        <button type="submit" class="btn btn-neon profile-submit-btn">
+                            <i class="bi bi-check-lg"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 {% endblock %}

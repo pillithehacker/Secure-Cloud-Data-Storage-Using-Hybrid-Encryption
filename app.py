@@ -1,4 +1,5 @@
 import os
+import secrets
 from datetime import datetime
 
 from flask import Flask, flash, redirect, render_template, request, send_file, url_for
@@ -6,7 +7,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 
 from config import Config
-from models import ActivityLog, File, User, db
+from models import ActivityLog, File, User, Workspace, WorkspaceMember, WorkspaceInvite, db
 from services.access_control import role_required
 from services.encryption_service import decrypt_file_hybrid, encrypt_file_hybrid
 from services.file_service import decrypted_file_path, encrypted_file_path, save_uploaded_file
@@ -49,7 +50,16 @@ def can_access_file(file_obj):
         return True
     if file_obj.owner_id == current_user.id:
         return True
-    return current_user.id in file_obj.shared_user_ids()
+    if current_user.id in file_obj.shared_user_ids():
+        return True
+    if file_obj.workspace_id:
+        membership = WorkspaceMember.query.filter_by(
+            user_id=current_user.id,
+            workspace_id=file_obj.workspace_id
+        ).first()
+        if membership:
+            return True
+    return False
 
 
 @app.route("/")
@@ -119,8 +129,8 @@ def login():
     return render_template("login.html")
 
 
-@app.route("/logout")
 @login_required
+@app.route("/logout")
 def logout():
     log_activity("Logged out")
     logout_user()
@@ -128,9 +138,9 @@ def logout():
     return redirect(url_for("index"))
 
 
-@app.route("/admin/dashboard")
 @login_required
 @role_required("admin")
+@app.route("/admin/dashboard")
 def admin_dashboard():
     users = User.query.order_by(User.created_at.desc()).all()
     files = File.query.order_by(File.uploaded_at.desc()).all()
@@ -143,9 +153,9 @@ def admin_dashboard():
     return render_template("dashboard/admin_dashboard.html", users=users, files=files, logs=logs, stats=stats)
 
 
-@app.route("/admin/user/block/<int:user_id>", methods=["POST"])
 @login_required
 @role_required("admin")
+@app.route("/admin/user/block/<int:user_id>", methods=["POST"])
 def admin_block_user(user_id):
     target = db.session.get(User, user_id)
     if not target or target.id == current_user.id:
@@ -158,9 +168,9 @@ def admin_block_user(user_id):
     return redirect(url_for("admin_dashboard"))
 
 
-@app.route("/admin/user/delete/<int:user_id>", methods=["POST"])
 @login_required
 @role_required("admin")
+@app.route("/admin/user/delete/<int:user_id>", methods=["POST"])
 def admin_delete_user(user_id):
     target = db.session.get(User, user_id)
     if not target or target.id == current_user.id:
@@ -178,26 +188,31 @@ def admin_delete_user(user_id):
     return redirect(url_for("admin_dashboard"))
 
 
-@app.route("/user/dashboard")
 @login_required
 @role_required("user")
+@app.route("/user/dashboard")
 def user_dashboard():
     user_files = File.query.filter_by(owner_id=current_user.id).order_by(File.uploaded_at.desc()).all()
     shared_files = [f for f in File.query.order_by(File.uploaded_at.desc()).all() if current_user.id in f.shared_user_ids()]
     logs = ActivityLog.query.filter_by(user_id=current_user.id).order_by(ActivityLog.timestamp.desc()).limit(8).all()
     storage = sum(f.file_size or 0 for f in user_files)
+    
+    # Get user's workspaces
+    workspaces = current_user.get_workspaces()
+    
     return render_template(
         "dashboard/user_dashboard.html",
         user_files=user_files,
         shared_files=shared_files,
         logs=logs,
         storage=storage,
+        workspaces=workspaces,
     )
 
 
-@app.route("/auditor/dashboard")
 @login_required
 @role_required("auditor")
+@app.route("/auditor/dashboard")
 def auditor_dashboard():
     logs = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).limit(50).all()
     all_files = File.query.order_by(File.uploaded_at.desc()).all()
@@ -207,8 +222,356 @@ def auditor_dashboard():
     )
 
 
-@app.route("/files")
+# ==================== WORKSPACE ROUTES ====================
+
 @login_required
+@app.route("/workspaces")
+def workspaces():
+    """List all workspaces user is a member of"""
+    my_workspaces = current_user.get_workspaces()
+    # Also show workspaces where user has pending invites
+    pending_invites = WorkspaceInvite.query.filter_by(email=current_user.email).all()
+    return render_template("workspaces/workspaces.html", 
+                         workspaces=my_workspaces, 
+                         pending_invites=pending_invites)
+
+
+@login_required
+@role_required("user", "admin")
+@app.route("/workspaces/create", methods=["GET", "POST"])
+def create_workspace():
+    """Create a new workspace"""
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        description = request.form.get("description", "").strip()
+        
+        if not name:
+            flash("Workspace name is required.", "danger")
+            return redirect(url_for("create_workspace"))
+        
+        # Generate unique invite code
+        invite_code = secrets.token_urlsafe(8)
+        while Workspace.query.filter_by(invite_code=invite_code).first():
+            invite_code = secrets.token_urlsafe(8)
+        
+        workspace = Workspace(
+            name=name,
+            description=description,
+            owner_id=current_user.id,
+            invite_code=invite_code
+        )
+        db.session.add(workspace)
+        db.session.commit()
+        
+        # Add creator as admin member
+        membership = WorkspaceMember(
+            workspace_id=workspace.id,
+            user_id=current_user.id,
+            role="admin"
+        )
+        db.session.add(membership)
+        db.session.commit()
+        
+        log_activity(f"Created workspace: {name}")
+        flash(f"Workspace '{name}' created successfully!", "success")
+        return redirect(url_for("workspaces"))
+    
+    return render_template("workspaces/create_workspace.html")
+
+
+@login_required
+@app.route("/workspaces/<int:workspace_id>")
+def view_workspace(workspace_id):
+    """View workspace details and files"""
+    workspace = db.session.get(Workspace, workspace_id)
+    if not workspace:
+        flash("Workspace not found.", "warning")
+        return redirect(url_for("workspaces"))
+    
+    # Check if user is member
+    if not workspace.is_member(current_user.id):
+        flash("You are not a member of this workspace.", "danger")
+        return redirect(url_for("workspaces"))
+    
+    # Get workspace files
+    workspace_files = File.query.filter_by(workspace_id=workspace_id).order_by(File.uploaded_at.desc()).all()
+    
+    # Get members
+    members = WorkspaceMember.query.filter_by(workspace_id=workspace_id).all()
+    
+    # Get pending invites
+    invites = WorkspaceInvite.query.filter_by(workspace_id=workspace_id).all()
+    
+    return render_template("workspaces/workspace_detail.html", 
+                         workspace=workspace, 
+                         files=workspace_files,
+                         members=members,
+                         invites=invites,
+                         is_admin=workspace.is_admin(current_user.id))
+
+
+@login_required
+@app.route("/workspaces/<int:workspace_id>/invite", methods=["POST"])
+def invite_to_workspace(workspace_id):
+    """Invite a user to workspace by email"""
+    workspace = db.session.get(Workspace, workspace_id)
+    if not workspace:
+        flash("Workspace not found.", "warning")
+        return redirect(url_for("workspaces"))
+    
+    if not workspace.is_admin(current_user.id):
+        flash("Only workspace admins can invite members.", "danger")
+        return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    email = request.form.get("email", "").strip().lower()
+    if not email:
+        flash("Email is required.", "danger")
+        return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    # Check if user exists
+    target_user = User.query.filter_by(email=email).first()
+    
+    # Check if already a member
+    if target_user and workspace.is_member(target_user.id):
+        flash(f"{email} is already a member.", "warning")
+        return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    # Check if invite already exists
+    existing_invite = WorkspaceInvite.query.filter_by(workspace_id=workspace_id, email=email).first()
+    if existing_invite:
+        flash(f"Invite already sent to {email}.", "info")
+        return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    invite = WorkspaceInvite(
+        workspace_id=workspace_id,
+        email=email,
+        invited_by=current_user.id
+    )
+    db.session.add(invite)
+    db.session.commit()
+    
+    log_activity(f"Invited {email} to workspace {workspace.name}")
+    flash(f"Invite sent to {email}.", "success")
+    return redirect(url_for("view_workspace", workspace_id=workspace_id))
+
+
+@login_required
+@app.route("/workspaces/invite/<int:invite_id>/accept")
+def accept_workspace_invite(invite_id):
+    """Accept a workspace invitation"""
+    invite = db.session.get(WorkspaceInvite, invite_id)
+    if not invite:
+        flash("Invite not found.", "warning")
+        return redirect(url_for("workspaces"))
+    
+    if invite.email.lower() != current_user.email.lower():
+        flash("This invite is not for you.", "danger")
+        return redirect(url_for("workspaces"))
+    
+    # Add user as member
+    membership = WorkspaceMember(
+        workspace_id=invite.workspace_id,
+        user_id=current_user.id,
+        role="member"
+    )
+    db.session.add(membership)
+    db.session.delete(invite)
+    db.session.commit()
+    
+    workspace = db.session.get(Workspace, invite.workspace_id)
+    log_activity(f"Joined workspace: {workspace.name}")
+    flash(f"You've joined {workspace.name}!", "success")
+    return redirect(url_for("view_workspace", workspace_id=invite.workspace_id))
+
+
+@login_required
+@app.route("/workspaces/invite/<int:invite_id>/decline")
+def decline_workspace_invite(invite_id):
+    """Decline a workspace invitation"""
+    invite = db.session.get(WorkspaceInvite, invite_id)
+    if not invite:
+        flash("Invite not found.", "warning")
+        return redirect(url_for("workspaces"))
+    
+    if invite.email.lower() != current_user.email.lower():
+        flash("This invite is not for you.", "danger")
+        return redirect(url_for("workspaces"))
+    
+    workspace = db.session.get(Workspace, invite.workspace_id)
+    db.session.delete(invite)
+    db.session.commit()
+    
+    flash(f"Declined invite to {workspace.name}.", "info")
+    return redirect(url_for("workspaces"))
+
+
+@login_required
+@app.route("/workspaces/<int:workspace_id>/join/<invite_code>")
+def join_workspace_by_code(workspace_id, invite_code):
+    """Join a workspace using invite code"""
+    workspace = db.session.get(Workspace, workspace_id)
+    if not workspace:
+        flash("Workspace not found.", "warning")
+        return redirect(url_for("workspaces"))
+    
+    if workspace.invite_code != invite_code:
+        flash("Invalid invite code.", "danger")
+        return redirect(url_for("workspaces"))
+    
+    if workspace.is_member(current_user.id):
+        flash("You are already a member.", "info")
+        return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    membership = WorkspaceMember(
+        workspace_id=workspace_id,
+        user_id=current_user.id,
+        role="member"
+    )
+    db.session.add(membership)
+    db.session.commit()
+    
+    log_activity(f"Joined workspace: {workspace.name}")
+    flash(f"You've joined {workspace.name}!", "success")
+    return redirect(url_for("view_workspace", workspace_id=workspace_id))
+
+
+@login_required
+@app.route("/workspaces/<int:workspace_id>/member/<int:member_id>/remove", methods=["POST"])
+def remove_workspace_member(workspace_id, member_id):
+    """Remove a member from workspace"""
+    workspace = db.session.get(Workspace, workspace_id)
+    if not workspace:
+        flash("Workspace not found.", "warning")
+        return redirect(url_for("workspaces"))
+    
+    if not workspace.is_admin(current_user.id):
+        flash("Only workspace admins can remove members.", "danger")
+        return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    # Can't remove yourself if you're the only admin
+    if member_id == current_user.id:
+        admin_count = WorkspaceMember.query.filter_by(workspace_id=workspace_id, role="admin").count()
+        if admin_count <= 1:
+            flash("Cannot remove yourself. You are the only admin.", "danger")
+            return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    # Can't remove the owner
+    if member_id == workspace.owner_id:
+        flash("Cannot remove the workspace owner.", "danger")
+        return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    membership = WorkspaceMember.query.filter_by(workspace_id=workspace_id, user_id=member_id).first()
+    if membership:
+        member = db.session.get(User, member_id)
+        db.session.delete(membership)
+        db.session.commit()
+        log_activity(f"Removed {member.username} from workspace {workspace.name}")
+        flash(f"Removed {member.username} from workspace.", "success")
+    
+    return redirect(url_for("view_workspace", workspace_id=workspace_id))
+
+
+@login_required
+@app.route("/workspaces/<int:workspace_id>/member/<int:member_id>/promote", methods=["POST"])
+def promote_workspace_member(workspace_id, member_id):
+    """Promote a member to admin"""
+    workspace = db.session.get(Workspace, workspace_id)
+    if not workspace:
+        flash("Workspace not found.", "warning")
+        return redirect(url_for("workspaces"))
+    
+    if not workspace.is_admin(current_user.id):
+        flash("Only workspace admins can promote members.", "danger")
+        return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    membership = WorkspaceMember.query.filter_by(workspace_id=workspace_id, user_id=member_id).first()
+    if membership:
+        member = db.session.get(User, member_id)
+        membership.role = "admin"
+        db.session.commit()
+        log_activity(f"Promoted {member.username} to admin in {workspace.name}")
+        flash(f"Promoted {member.username} to admin.", "success")
+    
+    return redirect(url_for("view_workspace", workspace_id=workspace_id))
+
+
+@login_required
+@app.route("/workspaces/<int:workspace_id>/member/<int:member_id>/demote", methods=["POST"])
+def demote_workspace_admin(workspace_id, member_id):
+    """Demote an admin to member"""
+    workspace = db.session.get(Workspace, workspace_id)
+    if not workspace:
+        flash("Workspace not found.", "warning")
+        return redirect(url_for("workspaces"))
+    
+    if not workspace.is_admin(current_user.id):
+        flash("Only workspace admins can demote members.", "danger")
+        return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    if member_id == current_user.id:
+        flash("Cannot demote yourself.", "danger")
+        return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    membership = WorkspaceMember.query.filter_by(workspace_id=workspace_id, user_id=member_id).first()
+    if membership:
+        member = db.session.get(User, member_id)
+        membership.role = "member"
+        db.session.commit()
+        log_activity(f"Demoted {member.username} to member in {workspace.name}")
+        flash(f"Demoted {member.username} to member.", "success")
+    
+    return redirect(url_for("view_workspace", workspace_id=workspace_id))
+
+
+@login_required
+@app.route("/workspaces/<int:workspace_id>/delete", methods=["POST"])
+def delete_workspace(workspace_id):
+    """Delete a workspace (owner only)"""
+    workspace = db.session.get(Workspace, workspace_id)
+    if not workspace:
+        flash("Workspace not found.", "warning")
+        return redirect(url_for("workspaces"))
+    
+    if workspace.owner_id != current_user.id and current_user.role != "admin":
+        flash("Only the owner can delete the workspace.", "danger")
+        return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    workspace_name = workspace.name
+    db.session.delete(workspace)
+    db.session.commit()
+    
+    log_activity(f"Deleted workspace: {workspace_name}")
+    flash(f"Workspace '{workspace_name}' deleted.", "info")
+    return redirect(url_for("workspaces"))
+
+
+@login_required
+@app.route("/workspaces/<int:workspace_id>/leave", methods=["POST"])
+def leave_workspace(workspace_id):
+    """Leave a workspace"""
+    workspace = db.session.get(Workspace, workspace_id)
+    if not workspace:
+        flash("Workspace not found.", "warning")
+        return redirect(url_for("workspaces"))
+    
+    if workspace.owner_id == current_user.id:
+        flash("Owner cannot leave. Transfer ownership or delete the workspace.", "danger")
+        return redirect(url_for("view_workspace", workspace_id=workspace_id))
+    
+    membership = WorkspaceMember.query.filter_by(workspace_id=workspace_id, user_id=current_user.id).first()
+    if membership:
+        db.session.delete(membership)
+        db.session.commit()
+        log_activity(f"Left workspace: {workspace.name}")
+        flash(f"You've left {workspace.name}.", "info")
+    
+    return redirect(url_for("workspaces"))
+
+
+# ==================== FILE ROUTES ====================
+
+@login_required
+@app.route("/files")
 def files():
     if current_user.role == "admin":
         records = File.query.order_by(File.uploaded_at.desc()).all()
@@ -224,9 +587,9 @@ def files():
     return render_template("files/files.html", files=records, recent_activity=recent_activity)
 
 
-@app.route("/upload", methods=["GET", "POST"])
 @login_required
 @role_required("user", "admin")
+@app.route("/upload", methods=["GET", "POST"])
 def upload():
     if request.method == "POST":
         file = request.files.get("file")
@@ -235,6 +598,15 @@ def upload():
             return redirect(url_for("upload"))
 
         filename, original, path = save_uploaded_file(file, app.config["UPLOAD_FOLDER"])
+        
+        # Check if uploading to a workspace
+        workspace_id = request.form.get("workspace_id")
+        if workspace_id:
+            ws = db.session.get(Workspace, int(workspace_id))
+            if not ws or not ws.is_member(current_user.id):
+                flash("Invalid workspace.", "danger")
+                return redirect(url_for("upload"))
+        
         file_record = File(
             filename=filename,
             original_filename=original,
@@ -244,19 +616,27 @@ def upload():
             owner_id=current_user.id,
             encryption_status="raw",
             uploaded_at=datetime.utcnow(),
+            workspace_id=int(workspace_id) if workspace_id else None,
         )
         file_record.file_hash = sha256_file(path)
         db.session.add(file_record)
         db.session.commit()
         log_activity("Uploaded file", file_record.id)
-        flash("File uploaded.", "success")
+        
+        if workspace_id:
+            flash("File uploaded to workspace.", "success")
+        else:
+            flash("File uploaded.", "success")
         return redirect(url_for("files"))
-    return render_template("files/upload.html")
+    
+    # Get user's workspaces for dropdown
+    workspaces = current_user.get_workspaces()
+    return render_template("files/upload.html", workspaces=workspaces)
 
 
-@app.route("/encrypt/<int:file_id>")
 @login_required
 @role_required("user", "admin")
+@app.route("/encrypt/<int:file_id>")
 def encrypt_file(file_id):
     fobj = db.session.get(File, file_id)
     if not fobj or not can_access_file(fobj):
@@ -277,9 +657,9 @@ def encrypt_file(file_id):
     return redirect(url_for("files"))
 
 
-@app.route("/decrypt/<int:file_id>")
 @login_required
 @role_required("user", "admin")
+@app.route("/decrypt/<int:file_id>")
 def decrypt_file(file_id):
     fobj = db.session.get(File, file_id)
     if not fobj or not can_access_file(fobj):
@@ -301,8 +681,8 @@ def decrypt_file(file_id):
     return redirect(url_for("files"))
 
 
-@app.route("/download/<int:file_id>")
 @login_required
+@app.route("/download/<int:file_id>")
 def download_file(file_id):
     fobj = db.session.get(File, file_id)
     if not fobj or not can_access_file(fobj):
@@ -318,8 +698,8 @@ def download_file(file_id):
     return send_file(path, as_attachment=True, download_name=fobj.original_filename)
 
 
-@app.route("/delete/<int:file_id>")
 @login_required
+@app.route("/delete/<int:file_id>")
 def delete_file(file_id):
     fobj = db.session.get(File, file_id)
     if not fobj:
@@ -338,9 +718,9 @@ def delete_file(file_id):
     return redirect(url_for("files"))
 
 
-@app.route("/share/<int:file_id>", methods=["POST"])
 @login_required
 @role_required("user", "admin")
+@app.route("/share/<int:file_id>", methods=["POST"])
 def share_file(file_id):
     fobj = db.session.get(File, file_id)
     if not fobj or (current_user.role != "admin" and fobj.owner_id != current_user.id):
@@ -359,15 +739,15 @@ def share_file(file_id):
     return redirect(url_for("files"))
 
 
-@app.route("/files/shared")
 @login_required
+@app.route("/files/shared")
 def shared_files():
     files_list = [f for f in File.query.order_by(File.uploaded_at.desc()).all() if current_user.id in f.shared_user_ids()]
     return render_template("files/shared_files.html", files=files_list)
 
 
-@app.route("/logs")
 @login_required
+@app.route("/logs")
 def logs():
     if current_user.role in {"admin", "auditor"}:
         records = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).all()
@@ -376,8 +756,8 @@ def logs():
     return render_template("files/logs.html", logs=records)
 
 
-@app.route("/profile", methods=["GET", "POST"])
 @login_required
+@app.route("/profile", methods=["GET", "POST"])
 def profile():
     if request.method == "POST":
         current_user.username = request.form.get("username", current_user.username)

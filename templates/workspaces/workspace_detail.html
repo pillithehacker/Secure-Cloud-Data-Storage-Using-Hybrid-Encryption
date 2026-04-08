@@ -1,0 +1,366 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="workspace-detail-page">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="ws-breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('workspaces') }}"><i class="fa fa-briefcase"></i> Workspaces</a></li>
+            <li class="breadcrumb-item active">{{ workspace.name }}</li>
+        </ol>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Workspace Header Card -->
+    <div class="workspace-header-card">
+        <div class="workspace-header-content">
+            <div class="workspace-info">
+                <div class="workspace-icon-wrapper">
+                    <i class="fa fa-folder-open"></i>
+                </div>
+                <div class="workspace-text">
+                    <h1 class="workspace-title">{{ workspace.name }}</h1>
+                    {% if workspace.description %}
+                    <p class="workspace-description">{{ workspace.description }}</p>
+                    {% endif %}
+                    <div class="workspace-stats">
+                        <span class="stat-pill">
+                            <i class="fa fa-users"></i>
+                            <span>{{ members|length }} members</span>
+                        </span>
+                        <span class="stat-pill">
+                            <i class="fa fa-file"></i>
+                            <span>{{ files|length }} files</span>
+                        </span>
+                        <span class="stat-pill">
+                            <i class="fa fa-calendar"></i>
+                            <span>{{ workspace.created_at.strftime('%b %d, %Y') }}</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="workspace-actions">
+                <div class="dropdown">
+                    <button class="btn btn-actions dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fa fa-gear"></i>
+                        <span>Actions</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {% if is_admin %}
+                        <li>
+                            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#inviteModal">
+                                <i class="fa fa-user-plus"></i> Invite Member
+                            </button>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        {% endif %}
+                        <li>
+                            <span class="dropdown-header">Invite Link</span>
+                            <input type="text" class="form-control form-control-sm mx-2 mb-2" 
+                                   value="{{ url_for('join_workspace_by_code', workspace_id=workspace.id, invite_code=workspace.invite_code, _external=True) }}" 
+                                   readonly onclick="this.select()">
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        {% if workspace.owner_id != current_user.id %}
+                        <li>
+                            <form method="POST" action="{{ url_for('leave_workspace', workspace_id=workspace.id) }}" 
+                                  onsubmit="return confirm('Are you sure you want to leave this workspace?')">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fa fa-right-from-bracket"></i> Leave Workspace
+                                </button>
+                            </form>
+                        </li>
+                        {% endif %}
+                        {% if workspace.owner_id == current_user.id or current_user.role == 'admin' %}
+                        <li>
+                            <form method="POST" action="{{ url_for('delete_workspace', workspace_id=workspace.id) }}"
+                                  onsubmit="return confirm('Are you sure? This will delete the workspace and all files.')">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fa fa-trash"></i> Delete Workspace
+                                </button>
+                            </form>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs Section -->
+    <div class="workspace-tabs-section">
+        <ul class="nav workspace-tabs" id="workspaceTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="files-tab" data-bs-toggle="tab" data-bs-target="#files" type="button" role="tab">
+                    <i class="fa fa-file"></i>
+                    <span>Files</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="members-tab" data-bs-toggle="tab" data-bs-target="#members" type="button" role="tab">
+                    <i class="fa fa-users"></i>
+                    <span>Members</span>
+                </button>
+            </li>
+            {% if is_admin %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="invites-tab" data-bs-toggle="tab" data-bs-target="#invites" type="button" role="tab">
+                    <i class="fa fa-envelope"></i>
+                    <span>Pending Invites</span>
+                </button>
+            </li>
+            {% endif %}
+        </ul>
+        <div class="tabs-divider"></div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="workspaceTabContent">
+        <!-- Files Tab -->
+        <div class="tab-pane fade show active" id="files" role="tabpanel">
+            <div class="tab-header">
+                <h3 class="tab-title">
+                    <i class="fa fa-folder-open"></i>
+                    <span>Workspace Files</span>
+                </h3>
+                <a href="{{ url_for('upload') }}?workspace_id={{ workspace.id }}" class="btn btn-upload">
+                    <i class="fa fa-upload"></i>
+                    <span>Upload File</span>
+                </a>
+            </div>
+
+            {% if files %}
+            <div class="files-table-wrapper">
+                <table class="table files-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Size</th>
+                            <th>Type</th>
+                            <th>Owner</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in files %}
+                        <tr>
+                            <td>
+                                <i class="fa fa-file"></i>
+                                {{ file.original_filename }}
+                            </td>
+                            <td>{{ (file.file_size / 1024)|round(1) }} KB</td>
+                            <td>{{ file.file_type or 'Unknown' }}</td>
+                            <td>{{ file.owner.username }}</td>
+                            <td>
+                                {% if file.encryption_status == 'encrypted' %}
+                                <span class="status-badge status-encrypted"><i class="fa fa-lock"></i> Encrypted</span>
+                                {% elif file.encryption_status == 'decrypted' %}
+                                <span class="status-badge status-decrypted"><i class="fa fa-unlock"></i> Decrypted</span>
+                                {% else %}
+                                <span class="status-badge status-raw">Raw</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ file.uploaded_at.strftime('%b %d, %Y') }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    {% if file.encryption_status == 'raw' %}
+                                    <a href="{{ url_for('encrypt_file', file_id=file.id) }}" class="btn btn-icon btn-encrypt" title="Encrypt">
+                                        <i class="fa fa-lock"></i>
+                                    </a>
+                                    {% elif file.encryption_status == 'encrypted' %}
+                                    <a href="{{ url_for('decrypt_file', file_id=file.id) }}" class="btn btn-icon btn-decrypt" title="Decrypt">
+                                        <i class="fa fa-unlock"></i>
+                                    </a>
+                                    {% endif %}
+                                    <a href="{{ url_for('download_file', file_id=file.id) }}" class="btn btn-icon btn-download" title="Download">
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                    {% if file.owner_id == current_user.id %}
+                                    <a href="{{ url_for('delete_file', file_id=file.id) }}" class="btn btn-icon btn-delete" title="Delete"
+                                       onclick="return confirm('Delete this file?')">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="empty-state-wrapper">
+                <div class="empty-state-card">
+                    <div class="empty-state-icon">
+                        <i class="fa fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3 class="empty-state-title">No Files Yet</h3>
+                    <p class="empty-state-text">Upload files to share securely with workspace members using hybrid encryption</p>
+                    <a href="{{ url_for('upload') }}?workspace_id={{ workspace.id }}" class="btn btn-upload-primary">
+                        <i class="fa fa-upload"></i>
+                        <span>Upload First File</span>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Members Tab -->
+        <div class="tab-pane fade" id="members" role="tabpanel">
+            <div class="members-table-wrapper">
+                <table class="table members-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            {% if is_admin %}
+                            <th>Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for membership in members %}
+                        <tr>
+                            <td>
+                                {% if membership.user.avatar_url %}
+                                <img src="{{ membership.user.avatar_url }}" class="member-avatar" alt="">
+                                {% else %}
+                                <div class="member-avatar-placeholder">
+                                    {{ membership.user.username[0]|upper }}
+                                </div>
+                                {% endif %}
+                                <span class="member-name">{{ membership.user.username }}</span>
+                                {% if membership.user_id == workspace.owner_id %}
+                                <span class="role-badge role-owner">Owner</span>
+                                {% endif %}
+                            </td>
+                            <td class="member-email">{{ membership.user.email }}</td>
+                            <td>
+                                {% if membership.role == 'admin' %}
+                                <span class="role-badge role-admin">Admin</span>
+                                {% else %}
+                                <span class="role-badge role-member">Member</span>
+                                {% endif %}
+                            </td>
+                            <td class="member-date">{{ membership.joined_at.strftime('%b %d, %Y') }}</td>
+                            {% if is_admin %}
+                            <td>
+                                {% if membership.user_id != workspace.owner_id %}
+                                <div class="action-buttons">
+                                    {% if membership.role == 'member' %}
+                                    <form method="POST" action="{{ url_for('promote_workspace_member', workspace_id=workspace.id, member_id=membership.user_id) }}">
+                                        <button type="submit" class="btn btn-icon btn-promote" title="Promote to Admin">
+                                            <i class="fa fa-arrow-up"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST" action="{{ url_for('demote_workspace_admin', workspace_id=workspace.id, member_id=membership.user_id) }}">
+                                        <button type="submit" class="btn btn-icon btn-demote" title="Demote to Member">
+                                            <i class="fa fa-arrow-down"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    <form method="POST" action="{{ url_for('remove_workspace_member', workspace_id=workspace.id, member_id=membership.user_id) }}"
+                                          onsubmit="return confirm('Remove this member?')">
+                                        <button type="submit" class="btn btn-icon btn-remove" title="Remove">
+                                            <i class="fa fa-user-minus"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                {% else %}
+                                <span class="no-actions">No actions</span>
+                                {% endif %}
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pending Invites Tab -->
+        {% if is_admin %}
+        <div class="tab-pane fade" id="invites" role="tabpanel">
+            {% if invites %}
+            <div class="invites-table-wrapper">
+                <table class="table invites-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Invited By</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invite in invites %}
+                        <tr>
+                            <td><i class="fa fa-envelope"></i> {{ invite.email }}</td>
+                            <td><i class="fa fa-user"></i> {{ invite.inviter.username }}</td>
+                            <td><i class="fa fa-calendar"></i> {{ invite.created_at.strftime('%b %d, %Y') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state-wrapper">
+                <div class="empty-state-card">
+                    <div class="empty-state-icon empty-state-icon-secondary">
+                        <i class="fa fa-inbox"></i>
+                    </div>
+                    <h3 class="empty-state-title">No Pending Invites</h3>
+                    <p class="empty-state-text">Invite members to collaborate on this workspace</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Invite Modal -->
+{% if is_admin %}
+<div class="modal fade" id="inviteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-user-plus"></i> Invite Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('invite_to_workspace', workspace_id=workspace.id) }}">
+                <div class="modal-body">
+                    <p>Enter the email address of the person you want to invite.</p>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" required
+                               placeholder="colleague@example.com">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-send"></i> Send Invite
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

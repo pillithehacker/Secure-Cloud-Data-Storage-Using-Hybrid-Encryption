@@ -10,6 +10,22 @@
           <input type="file" id="uploadInput" name="file" class="form-control bg-dark text-white" required>
           <p class="mb-0 mt-2 text-secondary">Drag & drop or select a file.</p>
         </div>
+        
+        {% if workspaces %}
+        <div class="mb-3">
+          <label class="form-label">Upload to Workspace (optional)</label>
+          <select class="form-select bg-dark text-white" name="workspace_id">
+            <option value="">Personal (no workspace)</option>
+            {% for workspace in workspaces %}
+            <option value="{{ workspace.id }}" {% if request.args.get('workspace_id')|int == workspace.id %}selected{% endif %}>
+              {{ workspace.name }}
+            </option>
+            {% endfor %}
+          </select>
+          <div class="form-text text-muted">Select a workspace to share this file with team members</div>
+        </div>
+        {% endif %}
+        
         <div class="mb-3">
           <label class="form-label">File Tag (optional)</label>
           <input class="form-control bg-dark text-white" placeholder="finance, legal, contract">
@@ -19,7 +35,7 @@
           <div class="glass-card p-3 small text-secondary" id="previewText">No file selected.</div>
         </div>
         <div class="progress mb-3"><div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%">Ready</div></div>
-        <button class="btn btn-primary w-100"><i class="fa fa-upload"></i> Upload</button>
+        <button class="btn btn-neon w-100"><i class="fa fa-upload"></i> Upload</button>
       </form>
     </div>
   </div>

@@ -70,14 +70,58 @@
   </div>
 </section>
 
-<section class="glass-card p-4 mt-4" data-aos="fade-right">
-  <h4 class="mb-3">Encryption Process Timeline</h4>
-  <div class="timeline">
-    <div><span>1</span>Upload File</div>
-    <div><span>2</span>Generate AES-256 Key</div>
-    <div><span>3</span>Encrypt with AES-GCM</div>
-    <div><span>4</span>Encrypt AES key using RSA</div>
-    <div><span>5</span>Store and verify SHA-256 integrity</div>
+<section class="glass-card p-4 mt-4 encryption-timeline-section" data-aos="fade-right">
+  <div class="timeline-header">
+    <h4 class="timeline-title">Encryption Process Timeline</h4>
+    <p class="timeline-subtitle">How files are securely encrypted, protected, and verified inside the platform</p>
+  </div>
+  <div class="encryption-timeline">
+    <div class="timeline-connector"></div>
+    <div class="timeline-step">
+      <div class="step-number">1</div>
+      <div class="step-icon">
+        <i class="fa fa-file-arrow-up"></i>
+      </div>
+      <div class="step-content">
+        <span class="step-title">Upload File</span>
+      </div>
+    </div>
+    <div class="timeline-step">
+      <div class="step-number">2</div>
+      <div class="step-icon">
+        <i class="fa fa-key"></i>
+      </div>
+      <div class="step-content">
+        <span class="step-title">Generate AES-256 Key</span>
+      </div>
+    </div>
+    <div class="timeline-step">
+      <div class="step-number">3</div>
+      <div class="step-icon">
+        <i class="fa fa-shield-halved"></i>
+      </div>
+      <div class="step-content">
+        <span class="step-title">Encrypt with AES-GCM</span>
+      </div>
+    </div>
+    <div class="timeline-step">
+      <div class="step-number">4</div>
+      <div class="step-icon">
+        <i class="fa fa-lock"></i>
+      </div>
+      <div class="step-content">
+        <span class="step-title">Encrypt AES key using RSA</span>
+      </div>
+    </div>
+    <div class="timeline-step">
+      <div class="step-number">5</div>
+      <div class="step-icon">
+        <i class="fa fa-database"></i>
+      </div>
+      <div class="step-content">
+        <span class="step-title">Store and verify SHA-256 integrity</span>
+      </div>
+    </div>
   </div>
 </section>
 
